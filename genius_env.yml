@@ -1,0 +1,35 @@
+name: genius2
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.10
+  - numpy=1.24.4
+  - pip
+  - pytorch
+  - torchvision
+  - pip:
+      - python-dotenv
+      - pycocoevalcap
+      - omegaconf
+      - wandb
+      - ftfy
+      - tqdm
+      - regex
+      - typeguard
+      - datasets
+      - transformers==4.45.2
+      - git+https://github.com/openai/CLIP.git
+      - timm
+      - fairscale
+      - opencv-python
+      - einops
+      - faiss-gpu
+      - pandas
+      - scipy
+      - tokenizers
+      - vector-quantize-pytorch
+      - scikit-learn
+      - matplotlib
+      - pybind11

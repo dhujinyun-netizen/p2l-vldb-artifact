@@ -1,0 +1,4 @@
+label,generation_seconds,examples,generation_ms_per_query,p50_ms_per_query,p95_ms_per_query,p99_ms_per_query,peak_allocated_mib,model_total_seconds,constraint_expand_total_seconds,recall_at_1,recall_at_5,recall_at_10,path,sha256
+Canonical Sequential+PCAA,249.773094,4170,59.89762446043165,59.024258,61.520126,63.407292,2951.109,134.454966,80.280283,0.1242,0.3484,0.43,logs/structnar_cirr_scale_w20_sequential_0021551.log,c315f4427a6ac17f651ca01711cfe9c97527f837871a0542a4fa066f3e89d62c
+GPU-flat Sequential+PCAA,247.415016,4170,59.33213812949641,58.639874,61.570427,66.429068,2951.993,,,0.1242,0.3484,0.43,profile_output/p2l_gpu_trie_baseline/cirr_local_full.log,338796f568248b12612277987ad022fa558b1be453865d58142f81b22d49f3f4
+P2L+PCAA,115.286214,4170,27.646574100719427,27.00456,29.173248,30.463871,2951.109,49.086042,31.223629,0.1144,0.3813,0.4746,logs/structnar_cirr_scale_w20_p2l_0021551.log,f06eae2a3fa989c3706e117447be542ed5c8fb03684d4a631565447fd7ace4f5

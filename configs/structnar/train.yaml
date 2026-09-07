@@ -1,0 +1,130 @@
+codebook_config:
+  codebook_level: 8
+  codebook_vocab: 4096
+  pool_path: extracted_embed/CLIP_SF/train/pool_SFpretrained_IT_dict.pt
+  quantizer_path: checkpoint/rq_clip_large/Large/Instruct/InBatch/rq_clip_large_epoch_50.pth
+  query_path: extracted_embed/CLIP_SF/train/query_SFpretrained_instruction_IT_dict.pt
+data_config:
+  enable_query_instruct: true
+  hard_neg_num: 0
+  image_size: 224, 224
+  in_batch_neg_num: 0
+  query_instruct_path: instructions/query_instructions.tsv
+  returns: null
+  shuffle_cand: true
+  train_cand_pool_path: cand_pool/global/mbeir_union_train_cand_pool.jsonl
+  train_query_data_path: query/union_train/mbeir_union_up_train.jsonl
+  val_cand_pool_path: cand_pool/global/mbeir_union_val_cand_pool.jsonl
+  val_query_data_path: query/union_val/mbeir_union_val.jsonl
+dataloader_config:
+  num_workers: 4
+  train_batch_size: 512
+  valid_batch_size: 128
+dist_config:
+  dist_url: env://
+evaluator:
+  enable_eval: false
+  eval_freq: 1
+  eval_start: 1
+  print_freq: 10
+  save_freq: 10
+experiment:
+  description: ${model.name} ${model.size} ${experiment.instruct_status} ${experiment.exp_name}
+  exp_name: structnar
+  instruct_status: Instruct
+  path_suffix: ${model.short_name}/${model.size}/${experiment.instruct_status}/${experiment.exp_name}/
+hyperparameter_config:
+  alpha: 2
+logger_config:
+  logger_out_dir: logger/${experiment.path_suffix}
+  logger_out_file_name: train.log
+model:
+  generator_type: gpt_hdgr
+  use_t5_tokenizer: false
+  time_step: 8
+  guidance_scale: 3.0
+  cond_drop_prob: 0.1
+  temperature: 1.0
+  top_p: 1.0
+  d_model: 512
+  ckpt_config:
+    ckpt_dir: checkpoint/code_tied
+    ckpt_name: ''
+    resume_training: false
+    init_from_checkpoint: false
+    init_ckpt_dir: ''
+    init_ckpt_name: ''
+    init_strict: false
+  clip_vision_model_name: ViT-L/14
+  gather_embeddings: true
+  name: GPTHDGRBackboneRetriever
+  pretrained_clip_model_dir: checkpoint/CLIP/
+  pretrained_config:
+    pretrained_dir: checkpoint/CLIP_SF
+    pretrained_name: clip_sf_large.pth
+    using_pretrained: true
+  short_name: STRUCTNAR
+  gpt_hdgr_hierarchy_aware_blocks: false
+  use_tcis: false
+  hierarchy_aware_blocks: false
+  hierarchy_block_sizes:
+  - 9
+  hierarchy_block_names:
+  - full_code
+  gpt_hdgr_block_diffusion_steps: 8
+  gpt_hdgr_block_score_normalization: mean
+  block_trie_max_candidates: 0
+  deduplicate_block_beams: true
+  size: Large
+  num_prefix: 30
+  gpt_hdgr_block_size: 1
+  hdgr_num_layers: 6
+  hdgr_num_heads: 8
+  hdgr_dropout: 0.1
+  nar_num_layers: 6
+  nar_num_heads: 8
+  nar_dropout: 0.1
+  use_time_embedding: true
+  init_rq_codebook_embeddings: true
+  codebook_init_scale: 100.0
+  query_positive_mix_prob: 1.0
+  query_positive_mix_alpha: 2.0
+  query_positive_mix_elementwise: true
+  prefix_suffix_noising_prob: 0.0
+  visible_token_loss_weight: 0.1
+  loss_normalization: global
+  diversity_strength: 0.0
+  delayed_diversity_start: 2
+  beam_score_normalization: none
+  # StructNAR implementation detail: the output classifier reuses the real-token rows of
+  # token_embed; the final MASK row remains input-only.
+  training_objective: masked_ce
+  hdgr_code_tied_output_head: true
+  # Used only when loading an old untied HDGR checkpoint.
+  # average = 0.5 * (input embedding + old lm_head).
+  hdgr_tied_checkpoint_merge: average
+seed: 2023
+trainer_config:
+  eval_steps: 500
+  gradient_accumulation_steps: 1
+  # These values were defaults in the training code used for the released
+  # checkpoint; they are written explicitly here for reproducibility.
+  optimizer: adamw
+  adam_beta1: 0.9
+  adam_beta2: 0.98
+  adam_eps: 1.0e-6
+  weight_decay: 1.0e-4
+  gain_or_bias_weight_decay: 0.0
+  scheduler: cosine_warmup
+  learning_rate: 0.0001
+  # The released checkpoint was trained for 100 epochs (epochs 0--99).
+  num_train_epochs: 100
+  print_freq: 51
+  warmup_steps: 0
+  # 0 consumes the full epoch; positive values are intended for smoke tests.
+  max_train_batches: 0
+wandb_config:
+  enabled: false
+  experiment_name: ${experiment.description}
+  wandb_key: ''
+  wandb_project: GENIR

@@ -1,0 +1,14 @@
+source: M-BEIR files linked under mbeir_data
+distinct_train_queries: 1150203
+upsampled_training_entries_per_epoch: 1332790
+validation_queries: 182479
+test_queries: 190573
+union_test_candidates: 5609079
+training_file: query/union_train/mbeir_union_up_train.jsonl
+validation_file: query/union_val/mbeir_union_val.jsonl
+union_candidate_file: cand_pool/global/mbeir_union_test_cand_pool.jsonl
+training_note: >-
+  The official M-BEIR upsampled union file repeats entries from smaller
+  datasets to balance the training stream. Distinct train queries are counted
+  from the ten source-dataset files in query/train; sampled entries are the
+  physical line count consumed during each training epoch.

@@ -1,0 +1,165 @@
+codebook_config:
+  codebook_level: 8
+  codebook_vocab: 4096
+  quantizer_path: checkpoint/rq_clip_large/Large/Instruct/InBatch/rq_clip_large_epoch_50.pth
+data_config:
+  cand_pool_dir_name: cand_pool/local
+  enable_query_instruct: true
+  extracted_dir: extracted_embed/CLIP_SF/cand
+  image_size: 224, 224
+  in_batch_neg_num: 0
+  is_extracted: true
+  auto_fallback_to_raw_if_missing_extracted: false
+  auto_align_candidate_pool: false
+  query_instruct_path: instructions/query_instructions.tsv
+  shuffle_cand: true
+  deterministic_eval_sampling: true
+  test_dir_name: query/test
+  train_dir_name: query/train
+  union_cand_pool_dir_name: cand_pool/global
+  val_dir_name: query/val
+dataloader_config:
+  batch_size: 8
+  num_workers: 4
+dist_config:
+  dist_url: env://
+experiment:
+  description: ${model.name} ${model.size} ${experiment.instruct_status} ${experiment.exp_name}
+  exp_name: structnar_cirr_scale_w20_sequential_0021551
+  instruct_status: Instruct
+  path_suffix: ${model.short_name}/${model.size}/${experiment.instruct_status}/${experiment.exp_name}/
+model:
+  generator_type: gpt_hdgr
+  use_t5_tokenizer: false
+  time_step: 8
+  guidance_scale: 3.0
+  cond_drop_prob: 0.1
+  temperature: 1.0
+  top_p: 1.0
+  d_model: 512
+  ckpt_config:
+    ckpt_dir: checkpoint/code_tied
+    ckpt_name: gpt_hdgr_latest.pth
+  clip_vision_model_name: ViT-L/14
+  gather_embeddings: true
+  name: GPTHDGRBackboneRetriever
+  pretrained_clip_model_dir: checkpoint/CLIP/
+  pretrained_config:
+    pretrained_dir: checkpoint/CLIP_SF
+    pretrained_name: clip_sf_large.pth
+    using_pretrained: true
+  short_name: STRUCTNAR
+  gpt_hdgr_hierarchy_aware_blocks: true
+  use_tcis: true
+  hierarchy_aware_blocks: true
+  hierarchy_block_sizes:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  hierarchy_block_names:
+  - level_0
+  - level_1
+  - level_2
+  - level_3
+  - level_4
+  - level_5
+  - level_6
+  - level_7
+  - level_8
+  tcis_prefix_beams: 50
+  gpt_hdgr_block_diffusion_steps: 1
+  gpt_hdgr_block_score_normalization: sum
+  block_trie_max_candidates: 0
+  deduplicate_block_beams: true
+  size: Large
+  trie_type: trie_cpp
+  num_prefix: 30
+  diversity_strength: 0.0
+  delayed_diversity_start: 2
+  nar_num_layers: 6
+  nar_num_heads: 8
+  nar_dropout: 0.1
+  gpt_hdgr_block_size: 1
+  hdgr_num_layers: 6
+  hdgr_num_heads: 8
+  hdgr_dropout: 0.1
+  use_time_embedding: true
+  init_rq_codebook_embeddings: true
+  codebook_init_scale: 100.0
+  query_positive_mix_prob: 1.0
+  query_positive_mix_alpha: 2.0
+  query_positive_mix_elementwise: true
+  prefix_suffix_noising_prob: 0.0
+  visible_token_loss_weight: 0.1
+  loss_normalization: global
+  beam_score_normalization: none
+  training_objective: masked_ce
+  hdgr_code_tied_output_head: true
+  hdgr_tied_checkpoint_merge: average
+  use_rrg: true
+  rrg_weight: 20.0
+  rrg_normalize: true
+  rrg_skip_modality: true
+  rqc_score_mode: cosine
+  rqc_apply_from_level: 3
+  rqc_prefix_start_level: 0
+  rqc_level_weights: null
+  tcis_max_leaves: 0
+  tcis_compact_head: true
+  tcis_dynamic_intermediate_beams: true
+  tcis_batched_cfg: false
+  tcis_selected_rrg: false
+retrieval_config:
+  cand_pools_config:
+    cand_pools_name_to_gen_code:
+    - cirrscale_0021551
+    enable_gen_code: true
+    gen_code_union_pool: false
+    is_extracted: true
+  gen_code_dir_name: gen_code
+  index_dir_name: index
+  num_beams: 50
+  qrel_dir_name: qrels
+  rerank: true
+  results_dir_name: retrieval_results/structnar_scale_w20/sequential/cirr_task7
+  test_datasets_config:
+    datasets_name:
+    - cirr_task7
+    correspond_cand_pools_name:
+    - cirrscale_0021551
+    correspond_qrels_name:
+    - cirr_task7
+    correspond_metrics_name:
+    - Recall@1, Recall@5, Recall@10
+    enable_gen_code: true
+    enable_retrieve: true
+  train_datasets_config:
+    datasets_name: null
+    correspond_cand_pools_name: null
+    enable_gen_code: false
+    enable_retrieve: false
+  val_datasets_config:
+    datasets_name: null
+    correspond_cand_pools_name: null
+    correspond_qrels_name: null
+    correspond_metrics_name: null
+    enable_gen_code: false
+    enable_retrieve: false
+  use_fp16: true
+  use_gt_code_oracle: false
+  use_oracle_inference: false
+  save_beam_scores: true
+  use_hybrid_score: false
+  hybrid_score_method: weighted_zscore
+  hybrid_clip_weight: 0.8
+  hybrid_generator_weight: 0.2
+  hybrid_rrf_k: 60
+  write_to_tsv: true
+  load_saved_beam_scores: false
+seed: 2023

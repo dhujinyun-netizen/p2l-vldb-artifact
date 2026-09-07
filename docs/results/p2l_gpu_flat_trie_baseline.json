@@ -1,0 +1,185 @@
+{
+  "verdict": "PASS",
+  "scope": "CIRR-7 LOCAL, 4,170 queries, B=K=50, lambda=20",
+  "runner_status": "complete_exact",
+  "runner_state_path": "profile_output/p2l_gpu_trie_baseline/state.txt",
+  "equivalence_path": "profile_output/p2l_gpu_trie_baseline/equivalence.json",
+  "equivalence_sha256": "48c020d1039015fa6544b3867bb42a65913678cf9f01f12ce0250aa7e7fa80fd",
+  "equivalence": {
+    "verdict": "PASS",
+    "scope": "CIRR-7 full manifest, sequential+PCAA, B=K=50, lambda=20",
+    "config_comparison": {
+      "canonical_path": "configs/structnar/generated/structnar_vldb_canonical_seq_cirr_smoke.yaml",
+      "gpu_flat_path": "configs/structnar/generated/structnar_vldb_gpu_flat_seq_cirr_smoke.yaml",
+      "canonical_sha256": "5bc70e8cc0da6fb1f9fcf5ba4d79449ebbf7acb7bce9ec75aaf4712765839a51",
+      "gpu_flat_sha256": "7a503e2c696bddde19740cf9a6d21675db431187f577b561a6baf0b38b1bb4b6",
+      "different_keys": [
+        "experiment.exp_name",
+        "model.gpu_flat_tree_decode",
+        "model.memory_efficient_tree_decode",
+        "retrieval_config.results_dir_name"
+      ],
+      "allowed_different_keys": [
+        "experiment.exp_name",
+        "model.gpu_flat_tree_decode",
+        "model.memory_efficient_tree_decode",
+        "retrieval_config.results_dir_name"
+      ],
+      "unexpected_different_keys": [],
+      "required_gpu_flags": {
+        "model.memory_efficient_tree_decode": true,
+        "model.gpu_flat_tree_decode": true
+      },
+      "passed": true
+    },
+    "comparisons": [
+      {
+        "name": "mbeir_cirr_task7_test_codes.npy",
+        "canonical_shape": [
+          4170,
+          50,
+          9
+        ],
+        "gpu_flat_shape": [
+          4170,
+          50,
+          9
+        ],
+        "canonical_dtype": "int64",
+        "gpu_flat_dtype": "int64",
+        "exact": true,
+        "max_abs_difference": 0.0,
+        "canonical_sha256": "58f8fdbe4e5680e2e3496c3772094b7fc519c8891c72d2378d9bdc6cf359f26f",
+        "gpu_flat_sha256": "58f8fdbe4e5680e2e3496c3772094b7fc519c8891c72d2378d9bdc6cf359f26f"
+      },
+      {
+        "name": "mbeir_cirr_task7_test_beam_scores.npy",
+        "canonical_shape": [
+          4170,
+          50
+        ],
+        "gpu_flat_shape": [
+          4170,
+          50
+        ],
+        "canonical_dtype": "float32",
+        "gpu_flat_dtype": "float32",
+        "exact": true,
+        "max_abs_difference": 0.0,
+        "canonical_sha256": "5a5642c48a8393f928f8f369749c72f73c73d471deac516a06958a752f732022",
+        "gpu_flat_sha256": "5a5642c48a8393f928f8f369749c72f73c73d471deac516a06958a752f732022"
+      },
+      {
+        "name": "mbeir_cirr_task7_test_embeddings.npy",
+        "canonical_shape": [
+          4170,
+          768
+        ],
+        "gpu_flat_shape": [
+          4170,
+          768
+        ],
+        "canonical_dtype": "float16",
+        "gpu_flat_dtype": "float16",
+        "exact": true,
+        "max_abs_difference": 0.0,
+        "canonical_sha256": "642ebb17053e00e7d4a6c8b84b6e2d3266945ed4ebd2e8c2dd1d2bc11c1980f0",
+        "gpu_flat_sha256": "642ebb17053e00e7d4a6c8b84b6e2d3266945ed4ebd2e8c2dd1d2bc11c1980f0"
+      },
+      {
+        "name": "mbeir_cirr_task7_test_ids.npy",
+        "canonical_shape": [
+          4170
+        ],
+        "gpu_flat_shape": [
+          4170
+        ],
+        "canonical_dtype": "int64",
+        "gpu_flat_dtype": "int64",
+        "exact": true,
+        "max_abs_difference": 0.0,
+        "canonical_sha256": "86f4aaba587b2816abfac00c76af9d83e5799cc2a364e43cfd70236af3dfb0aa",
+        "gpu_flat_sha256": "86f4aaba587b2816abfac00c76af9d83e5799cc2a364e43cfd70236af3dfb0aa"
+      }
+    ]
+  },
+  "records": [
+    {
+      "label": "Canonical Sequential+PCAA",
+      "path": "logs/structnar_cirr_scale_w20_sequential_0021551.log",
+      "sha256": "c315f4427a6ac17f651ca01711cfe9c97527f837871a0542a4fa066f3e89d62c",
+      "generation_seconds": 249.773094,
+      "examples": 4170,
+      "generation_ms_per_query": 59.89762446043165,
+      "examples_per_second": 16.695153,
+      "peak_allocated_mib": 2951.109,
+      "peak_reserved_mib": 3692.0,
+      "latency_batches": 521,
+      "warmup_batches_excluded": 1,
+      "p50_ms_per_query": 59.024258,
+      "p95_ms_per_query": 61.520126,
+      "p99_ms_per_query": 63.407292,
+      "blocks": 4698,
+      "model_total_seconds": 134.454966,
+      "constraint_expand_total_seconds": 80.280283,
+      "model_share": 0.626143,
+      "constraint_expand_share": 0.373857,
+      "recall_at_1": 0.1242,
+      "recall_at_5": 0.3484,
+      "recall_at_10": 0.43
+    },
+    {
+      "label": "GPU-flat Sequential+PCAA",
+      "path": "profile_output/p2l_gpu_trie_baseline/cirr_local_full.log",
+      "sha256": "338796f568248b12612277987ad022fa558b1be453865d58142f81b22d49f3f4",
+      "generation_seconds": 247.415016,
+      "examples": 4170,
+      "generation_ms_per_query": 59.33213812949641,
+      "examples_per_second": 16.854272,
+      "peak_allocated_mib": 2951.993,
+      "peak_reserved_mib": 3692.0,
+      "latency_batches": 521,
+      "warmup_batches_excluded": 1,
+      "p50_ms_per_query": 58.639874,
+      "p95_ms_per_query": 61.570427,
+      "p99_ms_per_query": 66.429068,
+      "blocks": null,
+      "model_total_seconds": null,
+      "constraint_expand_total_seconds": null,
+      "model_share": null,
+      "constraint_expand_share": null,
+      "recall_at_1": 0.1242,
+      "recall_at_5": 0.3484,
+      "recall_at_10": 0.43
+    },
+    {
+      "label": "P2L+PCAA",
+      "path": "logs/structnar_cirr_scale_w20_p2l_0021551.log",
+      "sha256": "f06eae2a3fa989c3706e117447be542ed5c8fb03684d4a631565447fd7ace4f5",
+      "generation_seconds": 115.286214,
+      "examples": 4170,
+      "generation_ms_per_query": 27.646574100719427,
+      "examples_per_second": 36.170847,
+      "peak_allocated_mib": 2951.109,
+      "peak_reserved_mib": 3692.0,
+      "latency_batches": 521,
+      "warmup_batches_excluded": 1,
+      "p50_ms_per_query": 27.00456,
+      "p95_ms_per_query": 29.173248,
+      "p99_ms_per_query": 30.463871,
+      "blocks": 2088,
+      "model_total_seconds": 49.086042,
+      "constraint_expand_total_seconds": 31.223629,
+      "model_share": 0.61121,
+      "constraint_expand_share": 0.38879,
+      "recall_at_1": 0.1144,
+      "recall_at_5": 0.3813,
+      "recall_at_10": 0.4746
+    }
+  ],
+  "comparison": {
+    "gpu_flat_speedup_over_canonical": 1.009530860487465,
+    "p2l_speedup_over_gpu_flat": 2.146093686448928,
+    "p2l_reduction_vs_gpu_flat_percent": 53.40371176177925
+  }
+}

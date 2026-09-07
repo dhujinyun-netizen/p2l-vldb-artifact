@@ -1,0 +1,18 @@
+Environment capture for the reported StructNAR experiments
+Captured: 2026-09-04 Asia/Shanghai
+Conda environment: genius2
+Python: 3.10.19
+PyTorch: 2.7.0
+PyTorch CUDA toolkit: 12.8
+NumPy: 2.2.6
+CUDA available: True
+GPU 0: NVIDIA GeForce RTX 3090
+GPU 0 memory reported by nvidia-smi: 24576 MiB
+NVIDIA driver: 550.144.03
+
+Reproduction commands:
+  conda run -n genius2 python -c "import sys,torch,numpy; ..."
+  nvidia-smi --query-gpu=index,name,memory.total,driver_version --format=csv,noheader
+
+Scope: software and device identity only. Runtime measurements remain tied to
+their corresponding experiment logs and synchronized profiling records.

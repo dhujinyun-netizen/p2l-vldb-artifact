@@ -1,0 +1,269 @@
+method: P2L s=3 plus standardized cosine PCAA lambda=20
+checkpoint:
+  path: checkpoint/code_tied/gpt_hdgr_latest.pth
+  sha256: 2035a059e911c2329957210998fc927033057260990afe1ab9be62ca803944fb
+  epoch: 99
+  training_best_metadata: checkpoint/code_tied/training_best.json
+training:
+  config: configs/structnar/train.yaml
+  config_sha256: 7db58a46942b7fa560d2aeb5b077485c99eb82f32dd08982e748855dcbeec12a
+  log: logs/train_code_tied_hdgr_official_mbeir_20260715_044040.log
+  log_sha256: b93614ac706eab21e55342b5586c7d6f2fe92fecec5761e58975be20fc585d0b
+  epochs: 100
+  training_iterations: 260300
+  successful_optimizer_updates: 260182
+  skipped_nonfinite_updates: 118
+  trainable_parameters: 53857280
+  compute_scope: one GPU
+  logged_epoch_seconds: 34073
+  logged_epoch_hours: 9.464722222222223
+  duration_derivation: sum of 100 per-epoch Total time records in the training log
+evaluation:
+  final_config: configs/structnar/final_p2l_d3_rqc_cosine_w20.yaml
+  final_all32_results: docs/results/structnar_p2l_d3_rqc_cosine_w20_all32.tsv
+  final_all32_results_sha256: 4a9017b019db939748ddb0ed294be6997025f088ffa7e46a0b3a1064d4409323
+  run_metadata: docs/results/structnar_p2l_d3_rqc_cosine_w20_all32.meta.yaml
+  deterministic_query_sampling: true
+  batch_size: 8
+supporting_evidence:
+  matched_all16_lambda0:
+    metrics_path: docs/results/structnar_matched_all16_local_lambda0.csv
+    metrics_sha256: 5ab9bdecbf38c52a00903c7e13c94a16e8d25f9586504b7bad5cf755431f359b
+    summary_path: docs/results/structnar_matched_all16_local_lambda0_summary.json
+    summary_sha256: d3bda825da89b6a8625344f8cca49de38573fd94ec8016970d7483b414ea8aa4
+    scope: 16 LOCAL task configurations; matched checkpoint; PCAA disabled
+  matched_realized_input_equivalence:
+    json_path: docs/results/structnar_matched_index_equivalence.json
+    json_sha256: 2c922d78d5b2dc0011a71f81794ba9ab8d6bdc15a118a3da285cce6e8d14118a
+    csv_path: docs/results/structnar_matched_index_equivalence.csv
+    csv_sha256: de34e94833385280a1fd1777093c51080f9e7a4e7552fae30ce8a8cb7a224ec2
+    audit_script: scripts/structnar/audit_matched_index_equivalence.py
+    audit_script_sha256: 641305753fbd4c67a5f11a5f2fe9926c8d529c88718dbabd0604f3f1984e6619
+    scope: >-
+      Pairwise equality of candidate codes, query IDs, query embeddings, and
+      logical Trie payloads for Sequential and P2L on all 16 matched tasks.
+  local_runtime_repeats:
+    path: docs/results/structnar_local_runtime_repeats.csv
+    sha256: 0c0bc2fc09bf54071804cb7568d1e88f2b64addaecf2e4c4a8970bdd504edca7
+    scope: three synchronized LOCAL runs for CIRR-7 and NIGHTS-4 only
+  pcaa_runtime_repeats_edis_webqa:
+    path: docs/results/structnar_pcaa_runtime_repeats_edis_webqa.csv
+    sha256: 7cad2be162e65004a1d4feb940c1cc156d4ffcac8aeaf4ef3335ca67864ec90a
+    scope: three synchronized P2L+PCAA runs for EDIS-2 and WebQA-1
+  batch_scaling:
+    path: docs/results/structnar_tip_batch_scaling.csv
+    sha256: 8af4e8b53439ee3ec39bad0f1899808652ae03be0cc684598376f035be178f6f
+    scope: four tasks, two decoders, and batch sizes 1/4/8/16
+  component_profile:
+    path: docs/results/tip_component_profile_table_xi_20260726.csv
+    sha256: 56bb0303f08e7e79c0bdea6ab1a6cca17a58731cfd3d90c3a216226e506e64b7
+    scope: CIRR-7 LOCAL/UNION neural, frontier, and wall-clock components
+  system_index_alignment:
+    path: docs/results/structnar_genius_index_alignment_audit.yaml
+    sha256: f02b636766a395182a2be8681f77f9443a1ba8bf6b3e10e38473beef95d7c7f2
+  latency_percentiles:
+    path: docs/results/tip_runtime_table_x_latency_evidence_20260726.csv
+    sha256: daf0b50e8b1e3c3aa6792028faac40520837546192cdc407c062674956c6af94
+  prefix_length_sweep:
+    path: docs/results/tip_core_depth_lambda0_20260726_084520.csv
+    sha256: 810e36bcf0971ec7c5534611564fd342a621ff9a2c0767546bdf26c903a9d245
+    provenance_note: >-
+      The aggregate CSV is retained and hash-verified. Its EDIS-2 s=2 row
+      references a recovered console block that is no longer present as a
+      separate raw log; that row is excluded from the publication figure and
+      from the manuscript's quantitative operating-regime claims.
+  lambda0_controlled_runtime:
+    path: docs/results/structnar_lambda0_controlled_runtime.csv
+    sha256: f96b63545619d241e1a9f8a9d6161a331f0fe58d807c58ec70ad8d29a5a90b50
+  complete_suffix_ablation:
+    path: docs/results/structnar_complete_suffix_ablation.csv
+    sha256: b6913dd4fa1f149cc01685dff791c4c6f114b34f132f05c676bf54d48e139a77
+  cirr_nested_scale_runtime:
+    path: docs/results/structnar_cirr_end_to_end_scaling.csv
+    sha256: ddd638ffc7870165d711bd27ecef72644cd2fb3669e144285b90464395d2457b
+    protocol: clean nested-pool scaling; fixed 4,170-query CIRR-7 manifest
+  cirr_nested_scale_inputs:
+    path: docs/results/structnar_cirr_scale_input_audit.json
+    sha256: 28abad0b2a51d5a4b2568bbf9032ce1f17021246b410706b6f5e9ef0fdde8960
+    audit_script: scripts/structnar/audit_cirr_scale_inputs.py
+    audit_script_sha256: 3fdb044fa909f347f60a25e3d187b3acd22f0340d6df18aeb07078c4d29dfd6c
+    scope: >-
+      Identical 4,170-query IDs/features for Sequential and P2L across all
+      five scales, plus exact set containment for successive candidate pools.
+  cirr_union_lambda0:
+    path: docs/results/structnar_cirr_union_lambda0_metrics.csv
+    sha256: a4611650837bedc3066bb4a14d2d6bd46d3dde14665417fab0677cb9b1d31ec3
+  training_checkpoint_audit:
+    path: docs/results/structnar_training_checkpoint_audit.yaml
+    sha256: ee17e297c828374e8c3dd2c5cb419aafef235525197901cce45850c9852f950e
+  pcaa_validation_sweep:
+    path: docs/results/tip_core_pcaa_validation_20260904_132237.csv
+    sha256: 3b7707c971b17677435a33d94c8384ef6d8c54200eaf52d269e4250588e7be12
+  pcaa_weight_selection:
+    path: docs/results/tip_core_pcaa_selection_20260904_132237.csv
+    sha256: 2d89561a75c72b5e2fb283556e378dfd12479c800133e9ba058175fd7e825ee7
+  prefix_width_sweep:
+    path: docs/results/tip_core_prefix_beam_lambda0_20260726_092132.csv
+    sha256: 78986e2159e94a84e93b2a8cd246ceadeee77d86dfd34be5cf80a7124e48e537
+  rq_position_diagnostics:
+    path: docs/results/tip_rq_position_roles_checkpoint_20260727.csv
+    sha256: b29d2e5406a975ff50f7623eea1541c43bc70d87ab09dcdcbda41748ed190167
+  cpu_ann_reference:
+    flat_csv: docs/results/structnar_ann_flat_cirr_0021551_corrected.csv
+    flat_csv_sha256: 329e20e6867332c10e3d401e6d9841a3b572bf4453d3cab106ca6b9f194e3694
+    flat_log: docs/results/structnar_ann_flat_cirr_0021551_corrected.log
+    flat_log_sha256: db688e0e4c4760371211cb51a99313ea5863acac0b5c74c5c1067216332f4523
+    ivf_csv: docs/results/structnar_ann_ivfflat_cirr_1000000_corrected.csv
+    ivf_csv_sha256: c57abfbe5f50103e6de9813974a6fb7661845aece23f65be3396e29de5b11973
+    ivf_log: docs/results/structnar_ann_ivfflat_cirr_1000000_corrected.log
+    ivf_log_sha256: 246d71c2d0f12b81dacf7148245abfb3b08a2673dbe85d69a4426c025c4943dc
+    threads: 8
+    search_batch_queries: 256
+  union_trie_loader:
+    json_path: docs/results/p2l_union_index_load_profile.json
+    json_sha256: 50acc4d7000ee6391630fa0df5642a5d12f205b97148c7444e565a604ec22196
+    log_path: docs/results/p2l_union_index_load_profile.log
+    log_sha256: 50acc4d7000ee6391630fa0df5642a5d12f205b97148c7444e565a604ec22196
+    scope: isolated cold-start deserialization; excludes model and reranker embeddings
+  published_continuous_union_reference:
+    extraction_path: docs/results/source_extracts/genius_cvpr2025_table2_union.csv
+    extraction_sha256: 1a79bf84286a605166fa6dccf57a7de0ef3fb974b28b1206392defc9ff9fcdce
+    provenance_path: docs/results/source_extracts/genius_cvpr2025_table2_union_provenance.yaml
+    provenance_sha256: e5e8c58f09eaf1467182d7ac1447b2765ac1f4d351d0794ab8c5e16151179a8f
+    source_pdf: Generative_Retrieval_TopConf_2024_2026/01_Multimodal_Image/2025_CVPR_GENIUS.pdf
+    source_pdf_sha256: aba21c234deea8fffd4a7c6dc58b05bb430b2700632e7e87c5e17393a380fdd3
+  pcaa_stage_chain:
+    cirr:
+      path: docs/results/structnar_tip_chain_cirr_task7_p2l_d3_pcaa_w20.csv
+      sha256: 0a4c19cfed1aec79586340f744b8f2cfa4e2fcd28afd9f26cf54fe5c26e6d45d
+    nights:
+      path: docs/results/structnar_tip_chain_nights_task4_p2l_d3_pcaa_w20.csv
+      sha256: 34b86f985f7f7559ce8238909b3f29568a114a8dc21d3e3bdbcc83bf3699f3e9
+    edis:
+      path: docs/results/structnar_tip_chain_edis_task2_p2l_d3_pcaa_w20.csv
+      sha256: 8b3a114ad4563db02a50bf2b7f7370f17b04d579d6b0bfd37bf3b10f16b55954
+    webqa:
+      path: docs/results/structnar_tip_chain_webqa_task1_p2l_d3_pcaa_w20.csv
+      sha256: 5406584894cbfa1b7942a6e18833b6a517188348b344cf37602422596c28d07b
+  sequential_pcaa_stage_chain:
+    edis:
+      path: docs/results/structnar_tip_chain_edis_task2_sequential_pcaa_w20.csv
+      sha256: d7252fdcf08740cf661c7fc9d14a82280fd0f12f2ead1425fdb253abc977a1c1
+    webqa:
+      path: docs/results/structnar_tip_chain_webqa_task1_sequential_pcaa_w20.csv
+      sha256: 1258b5ff4c5a5372d2bc957da956faf2b553c87a56a447446ccd48d1fdab0956
+    reranked_metrics:
+      path: docs/results/structnar_sequential_pcaa_reranked_metrics.csv
+      sha256: 03ccfd96a7ded223a3d90d0d3e903dcb770e64e30fbdf8a7a083db3165f5babd
+      scope: EDIS-2 and WebQA-1 item-level metrics exported from the resolved-config evaluation logs
+  prefix_frontier_survival:
+    cirr_b10:
+      path: docs/results/tip_core_frontier_cirr_b10_20260726_092132.csv
+      sha256: 1c549110057197ecf3afe01c998890c8161a9c8065a8cc88d265b49dd36e75b2
+    cirr_b20:
+      path: docs/results/tip_core_frontier_cirr_b20_20260726_092132.csv
+      sha256: 3cb849150b8736626591ab28bae3fcf84e7d223737210192aa8ddec4dbeac198
+    cirr_b50:
+      path: docs/results/tip_core_frontier_cirr_b50_20260726_092132.csv
+      sha256: c0c8f752dcc48b742fa72b6bd855e8debc67852adfb3e9cfc766e44d30092f32
+    cirr_b100:
+      path: docs/results/tip_core_frontier_cirr_b100_20260726_092132.csv
+      sha256: ee23954e1a5569055eefae8bcef172468fc8f1994a7d9027865da48cc22578a6
+    nights_b10:
+      path: docs/results/tip_core_frontier_nights_b10_20260726_092132.csv
+      sha256: 0267bcaacb2bab4a9a05a1497991be864f86f5e69373c101697b16365a30bc91
+    nights_b20:
+      path: docs/results/tip_core_frontier_nights_b20_20260726_092132.csv
+      sha256: 989f0327348408a01beae6f52dc5089bd90180b2eae0209a4952d4b3d3facf34
+    nights_b50:
+      path: docs/results/tip_core_frontier_nights_b50_20260726_092132.csv
+      sha256: 9469eff9d10055ac980df5b67c148b613c9b4b75b932a3222fea19c295c03fdd
+    nights_b100:
+      path: docs/results/tip_core_frontier_nights_b100_20260726_092132.csv
+      sha256: bbac3e4dce03416ccbd371a7769f682d35d2f7ca158bc904cd5635c351d5806b
+  gpu_flat_levelwise_control:
+    result_json: docs/results/p2l_gpu_flat_trie_baseline.json
+    result_json_sha256: d9afa6dcbfaae3a37df0a94f28f84a23b14ed099e4f0df5a3c9c3b8a7a7be211
+    result_csv: docs/results/p2l_gpu_flat_trie_baseline.csv
+    result_csv_sha256: fd9f15d17537cac54c5ab7685633ae3ef893b54ccbc956c8d34f8ee666feb827
+    equivalence_json: profile_output/p2l_gpu_trie_baseline/equivalence.json
+    equivalence_json_sha256: 48c020d1039015fa6544b3867bb42a65913678cf9f01f12ce0250aa7e7fa80fd
+    audit_script: scripts/structnar/audit_gpu_flat_trie_equivalence.py
+    audit_script_sha256: 679f13d53ef9edb30e31c0f26a26904f3935b80012dc921f9d04770eac3d491c
+    scope: >-
+      Full 4,170-query CIRR-7 LOCAL manifest. Canonical and GPU-flat
+      Sequential+PCAA saved top-50 identifiers, scores, query embeddings, and
+      query IDs are exactly equal; P2L+PCAA is 53.4 percent faster than the
+      score-preserving GPU-flat control.
+  cross_workload_union_runtime:
+    metrics_path: docs/results/p2l_vldb_union_frontier_runtime.csv
+    metrics_sha256: f1144ffe93cf68a81fa26d45a1a87f19ebeeb095d64ff4b41f8ca2b53e4e4eb2
+    summary_path: docs/results/p2l_vldb_union_frontier_runtime_summary.json
+    summary_sha256: 25fca16de156ebf06a5bc0004440dbc52dfaf23ef2c948112d82ffd71a43aea3
+    index_equivalence_path: docs/results/p2l_vldb_union_index_equivalence.json
+    index_equivalence_sha256: 2055902d43e9514f915c021d8ce7dc0a1f642c6d44b4acac3a71356bfb8fbe0d
+    index_audit_script: scripts/structnar/audit_vldb_union_index_equivalence.py
+    index_audit_script_sha256: 063fdf4f21ae79b1eb1140b49985c23973700848891e3c72c37b89cf1bccf6d2
+    scope: >-
+      Matched Sequential+PCAA and P2L+PCAA UNION runs on NIGHTS-4, EDIS-2,
+      and WebQA-1. All six runs use byte-identical 5,609,079-by-9 semantic-ID
+      arrays; frontier-tail statistics apply to P2L.
+  causal_ar_nights:
+    summary_path: new_project/experiments/ar_p2l_nights_test_instructed_q2120_20260905_run1/summary.json
+    summary_sha256: d25500cbd66ef450253b88fda7e0edccb9f46431acdff1d45bac5f6b5681d507
+    bootstrap_path: new_project/experiments/ar_p2l_nights_test_instructed_q2120_20260905_run1/paired_bootstrap.json
+    bootstrap_sha256: b3df14ccdd8e3ea0147623eda35566d7ec3d5d1ff8f0f03435fa76a08f0614f8
+    scope: released causal scorer; NIGHTS-4 instructed test queries; no efficiency claim
+  causal_ar_webqa1:
+    summary_path: new_project/experiments/ar_p2l_webqa1_test_instructed_q2455_20260905_run1/summary.json
+    summary_sha256: a92589b716640462540aa16a326c1fdff98a637a4297a911ebc51210a4e6e852
+    bootstrap_path: new_project/experiments/ar_p2l_webqa1_test_instructed_q2455_20260905_run1/paired_bootstrap.json
+    bootstrap_sha256: 754ec781161c224db740930d7123bac10942b29938c809d3b730a0a50d6ebe36
+    scope: released causal scorer; WebQA-1 instructed test queries; no efficiency claim
+  causal_ar_score_equivalence:
+    path: new_project/experiments/ar_p2l_cirr_val_native_q2000_20260905_run1/real_score_equivalence.json
+    sha256: ac3853c6b14dd329f39937dcd3ad0e05bd7bff5f91f8638d70b90d19ee16c091
+    scope: exposed-leaf teacher-forced versus uncached full-prefix AR scores; floating-point tolerance
+  causal_ar_unit_tests:
+    path: docs/results/ar_p2l_unit_tests_20260906.xml
+    sha256: 887efc1ecdb76461c44f7d1094e6a40a5ecc35374f9f8c33ffa22a6f62fd2f55
+    scope: five teacher-forced/AR-P2L adapter tests
+  qualitative_case_provenance:
+    path: docs/results/structnar_vldb_qualitative_cases.provenance.json
+    sha256: 0231f1e2b0a3a6d5db920611ca739336552fb5786064007693722397c783ce37
+    scope: plotted query/candidate identities and rank relationships for the two qualitative cases
+  beam_pareto_provenance:
+    path: docs/results/structnar_tip_beam_pareto.provenance.yaml
+    sha256: cffbd6cefc857a9aa6ec7dd64b640aba98e7e9d92564758873e6e67305b1ffe9
+    scope: LOCAL batch-8 beam sweep; shared prefix/output widths and fixed PCAA configuration
+paper_artifacts:
+  manuscript:
+    path: VLDB/vldb2027/structnar_vldb.tex
+    sha256: 27351137fd19e1077db5756cafdc1a84a8d7fe761b0cf518ddf39e453f46419a
+  supplementary:
+    path: VLDB/vldb2027/supplementary/structnar_vldb_supplement.tex
+    sha256: d42d62141a0c51319f2c001dd1d3ab9f6926c8d607c852f4ebd6f0dbcb8342ca
+  deterministic_evidence_audit:
+    path: VLDB/vldb2027/audits/vldb_evidence_deterministic_audit_20260903_150504.json
+    sha256: 1e52e5b985c902421aa44f2139f571669554334980bcac3c05fc3bacb6a9cee7
+  deterministic_evidence_audit_script:
+    path: scripts/structnar/audit_vldb_evidence.py
+    sha256: 495130b841fbe3b4f561ce35ffa314b690c30870d1e53c6036ae82d6dac2135b
+  release_builder:
+    path: scripts/structnar/build_vldb_release_packages.sh
+    sha256: 532fd598e8048135f52c7c5ad3b685a56bba59a447153c0b1d9811cf2fee804e
+environment:
+  evidence_path: docs/results/structnar_environment.txt
+  evidence_sha256: 9b107468856c63c692b2c816ba5e7f2145161003741c534cde1aebc68da1b928
+  python: 3.10.19
+  pytorch: 2.7.0
+  cuda_toolkit: 12.8
+  nvidia_driver: 550.144.03
+  gpu_memory_mib: 24576
+  numpy: 2.2.6
+scope_note: >-
+  eval.yaml is a diagnostic base template and is not a reported paper
+  configuration. Historical config hashes in run metadata identify the exact
+  resolved all-32 run; the release config disables cache reuse by default.
+  Compiled PDF hashes are carried by the release ZIP sidecars rather than this
+  manifest because pdfTeX embeds the build timestamp in each PDF.

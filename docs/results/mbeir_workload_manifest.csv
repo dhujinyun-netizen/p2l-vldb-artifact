@@ -1,0 +1,17 @@
+dataset_task,query_modality,candidate_modality,test_queries,local_candidates,query_file,candidate_file
+VisualNews-0,text,image,19995,542246,query/test/mbeir_visualnews_task0_test.jsonl,cand_pool/local/mbeir_visualnews_task0_cand_pool.jsonl
+MSCOCO-0,text,image,24809,5000,query/test/mbeir_mscoco_task0_test.jsonl,cand_pool/local/mbeir_mscoco_task0_test_cand_pool.jsonl
+Fashion200K-0,text,image,1719,201824,query/test/mbeir_fashion200k_task0_test.jsonl,cand_pool/local/mbeir_fashion200k_task0_cand_pool.jsonl
+WebQA-1,text,text,2455,544457,query/test/mbeir_webqa_task1_test.jsonl,cand_pool/local/mbeir_webqa_task1_cand_pool.jsonl
+EDIS-2,text,"image,text",3241,1047067,query/test/mbeir_edis_task2_test.jsonl,cand_pool/local/mbeir_edis_task2_cand_pool.jsonl
+WebQA-2,text,"image,text",2511,403196,query/test/mbeir_webqa_task2_test.jsonl,cand_pool/local/mbeir_webqa_task2_cand_pool.jsonl
+VisualNews-3,image,text,20000,537568,query/test/mbeir_visualnews_task3_test.jsonl,cand_pool/local/mbeir_visualnews_task3_cand_pool.jsonl
+MSCOCO-3,image,text,5000,24809,query/test/mbeir_mscoco_task3_test.jsonl,cand_pool/local/mbeir_mscoco_task3_test_cand_pool.jsonl
+Fashion200K-3,image,text,4889,61707,query/test/mbeir_fashion200k_task3_test.jsonl,cand_pool/local/mbeir_fashion200k_task3_cand_pool.jsonl
+NIGHTS-4,image,image,2120,40038,query/test/mbeir_nights_task4_test.jsonl,cand_pool/local/mbeir_nights_task4_cand_pool.jsonl
+OVEN-6,"image,text",text,50004,676667,query/test/mbeir_oven_task6_test.jsonl,cand_pool/local/mbeir_oven_task6_cand_pool.jsonl
+InfoSeek-6,"image,text",text,11323,611651,query/test/mbeir_infoseek_task6_test.jsonl,cand_pool/local/mbeir_infoseek_task6_cand_pool.jsonl
+FashionIQ-7,"image,text",image,6003,74381,query/test/mbeir_fashioniq_task7_test.jsonl,cand_pool/local/mbeir_fashioniq_task7_cand_pool.jsonl
+CIRR-7,"image,text",image,4170,21551,query/test/mbeir_cirr_task7_test.jsonl,cand_pool/local/mbeir_cirr_task7_cand_pool.jsonl
+OVEN-8,"image,text","image,text",14741,335135,query/test/mbeir_oven_task8_test.jsonl,cand_pool/local/mbeir_oven_task8_cand_pool.jsonl
+InfoSeek-8,"image,text","image,text",17593,481782,query/test/mbeir_infoseek_task8_test.jsonl,cand_pool/local/mbeir_infoseek_task8_cand_pool.jsonl
