@@ -39,7 +39,7 @@
       </div>
       <figure class="hero-method-figure" aria-labelledby="framework-caption">
         <img src="assets/p2l_framework_final.png" alt="StructNAR framework showing offline semantic-ID index construction, online Prefix-to-Leaf execution, and reused exact-ID lookup and embedding reranking" fetchpriority="high">
-        <figcaption id="framework-caption">Offline index assets, online P2L execution, and the reused retrieval post-processing pipeline.</figcaption>
+        <figcaption id="framework-caption"><strong>Method overview.</strong> Offline, candidate semantic IDs populate the Trie, exact-ID buckets, and feature cache. Online, P2L searches to depth <em>s</em>, enumerates the stored descendants, scores all unresolved positions in one suffix round, and ranks complete identifiers. Exact-ID expansion and the frozen embedding reranker remain unchanged.</figcaption>
       </figure>
       <div class="hero-copy">
         <p class="hero-tagline">Stop pruning before the evidence arrives.</p>

@@ -88,6 +88,10 @@
   line-height: 1.5;
 }
 
+.hero-method-figure figcaption strong {
+  color: var(--ink);
+}
+
 .hero-tagline {
   max-width: 720px;
   margin: 0 auto;
