@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="Prefix-to-Leaf: a structured execution policy for semantic-ID retrieval.">
+  <title>Prefix-to-Leaf — Semantic-ID Retrieval</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="author-overrides.css">
+  <link rel="stylesheet" href="cases.css">
+  <link rel="stylesheet" href="walkthrough.css">
+  <link rel="stylesheet" href="results.css">
+  <link rel="stylesheet" href="academic-overrides.css">
+</head>
+<body>
+  <header class="site-nav">
+    <div class="wrap nav-inner">
+      <a class="wordmark" href="#top"><span class="mark">P2L</span><span>Prefix-to-Leaf</span></a>
+      <nav>
+        <a href="#story">Why</a>
+        <a href="#demo">Interactive</a>
+        <a href="#cases">Cases</a>
+        <a href="#walkthrough">Walkthrough</a>
+        <a class="nav-cta" href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact" target="_blank" rel="noreferrer">Code <span>↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="hero-heading-block">
+        <div class="eyebrow"><span class="eyebrow-line"></span> StructNAR · semantic-ID retrieval</div>
+        <h1 class="paper-heading"><span class="title-method">Prefix-to-Leaf</span><span class="title-rest">Structure-Aware Deferred Decoding for Semantic-Identifier Retrieval</span></h1>
+        <div class="author-block" aria-label="Authors and affiliations">
+          <div class="authors">Jian-Xin Ren<sup>1</sup> · Ming-Bo Zhao<sup>1</sup> · Zhao Zhang<sup>2</sup> · Jicong Fan<sup>3</sup></div>
+          <div class="affiliations"><sup>1</sup> Donghua University · <sup>2</sup> Hefei University of Technology · <sup>3</sup> The Chinese University of Hong Kong, Shenzhen</div>
+        </div>
+      </div>
+      <figure class="hero-method-figure" aria-labelledby="framework-caption">
+        <img src="assets/p2l_framework_final.png" alt="StructNAR framework showing offline semantic-ID index construction, online Prefix-to-Leaf execution, and reused exact-ID lookup and embedding reranking" fetchpriority="high">
+        <figcaption id="framework-caption">Offline index assets, online P2L execution, and the reused retrieval post-processing pipeline.</figcaption>
+      </figure>
+      <div class="hero-copy">
+        <p class="hero-tagline">Stop pruning before the evidence arrives.</p>
+        <p class="hero-lede">Prefix-to-Leaf is a structured search policy for hierarchical semantic IDs. It localizes a query with a short Trie prefix, then ranks every valid descendant together.</p>
+        <div class="hero-links">
+          <a class="pill dark" href="#demo">Interactive demo <span>↓</span></a>
+          <a class="pill light" href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact" target="_blank" rel="noreferrer">Open code <span>↗</span></a>
+          <span class="coming">Paper coming after submission</span>
+        </div>
+        <div class="hero-meta"><span>fixed-length hierarchical keys</span><span>·</span><span>valid leaves by construction</span><span>·</span><span>code-only preview</span></div>
+      </div>
+      <div class="hero-teaser" aria-label="Animated P2L teaser">
+        <div class="teaser-top"><span>query-conditioned search</span><span class="teaser-status"><i></i><b id="hero-status">P2L active</b></span></div>
+        <svg id="hero-svg" viewBox="0 0 700 360" role="img" aria-label="Trie search animation">
+          <defs>
+            <linearGradient id="route" x1="0" x2="1"><stop offset="0" stop-color="#6b8cff"/><stop offset="1" stop-color="#4ed5a1"/></linearGradient>
+            <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+          </defs>
+          <circle class="teaser-orb" cx="540" cy="145" r="96" filter="url(#soft)"></circle>
+          <g class="query-chip"><rect x="26" y="272" width="146" height="42" rx="21"></rect><circle cx="51" cy="293" r="8"></circle><text x="69" y="298">query q</text></g>
+          <path class="query-arrow" d="M172 293 C226 293 227 94 286 94"></path>
+          <g class="edges">
+            <path class="edge e-root" d="M286 94 L356 94"></path><path class="edge e-one" d="M356 94 L426 94"></path><path class="edge e-two" d="M426 94 L496 94"></path>
+            <path class="edge leaf-edge l1" d="M496 94 C547 94 553 43 612 43"></path><path class="edge leaf-edge l2" d="M496 94 C549 94 558 82 612 82"></path><path class="edge leaf-edge l3" d="M496 94 L612 121"></path><path class="edge leaf-edge l4" d="M496 94 L612 160"></path><path class="edge leaf-edge l5" d="M496 94 C549 94 558 203 612 199"></path><path class="edge leaf-edge l6" d="M496 94 C547 94 553 242 612 238"></path>
+          </g>
+          <g class="nodes">
+            <g class="node-group root-node"><circle cx="286" cy="94" r="16"></circle><text x="286" y="137">q</text></g><g class="node-group prefix-node p1"><circle cx="356" cy="94" r="16"></circle><text x="356" y="137">y₀</text></g><g class="node-group prefix-node p2"><circle cx="426" cy="94" r="16"></circle><text x="426" y="137">y₁</text></g><g class="node-group prefix-node p3"><circle cx="496" cy="94" r="16"></circle><text x="496" y="137">y₂</text></g>
+            <g class="leaf-group leaf-1"><circle cx="612" cy="43" r="10"></circle><text x="634" y="47">leaf 01</text></g><g class="leaf-group leaf-2"><circle cx="612" cy="82" r="10"></circle><text x="634" y="86">leaf 02</text></g><g class="leaf-group leaf-3"><circle cx="612" cy="121" r="10"></circle><text x="634" y="125">leaf 03</text></g><g class="leaf-group leaf-4"><circle cx="612" cy="160" r="10"></circle><text x="634" y="164">leaf 04</text></g><g class="leaf-group leaf-5"><circle cx="612" cy="199" r="10"></circle><text x="634" y="203">leaf 05</text></g><g class="leaf-group leaf-6"><circle cx="612" cy="238" r="10"></circle><text x="634" y="242">leaf 06</text></g>
+          </g>
+          <g class="round-label"><rect x="38" y="32" width="125" height="26" rx="13"></rect><text x="54" y="49">prefix rounds</text></g><g class="leaf-label"><rect x="545" y="276" width="126" height="27" rx="13"></rect><text x="558" y="294">score leaves</text></g>
+        </svg>
+        <div class="teaser-bottom"><span id="round-copy">3 prefix decisions</span><span class="teaser-arrow">→</span><strong id="teaser-copy">all valid descendants</strong></div>
+      </div>
+    </section>
+
+    <section class="fact-bar"><div class="wrap facts"><div><b>9 → 4</b><span>dependent guided rounds</span></div><div><b>Trie-native</b><span>no invalid IDs generated</span></div><div><b>one suffix pass</b><span>all unresolved positions contribute</span></div></div></section>
+
+    <section class="results-strip" aria-labelledby="results-title"><div class="wrap"><div class="results-heading"><span class="section-tag">Results at a glance</span><h2 id="results-title">The execution change is measurable.</h2></div><div class="result-grid"><article><strong>+3.48</strong><span>macro R@10 points</span><small>matched 16-task decoder comparison</small></article><article><strong>16 / 16</strong><span>positive task-level gains</span><small>point estimates under the same checkpoint</small></article><article><strong>~2×</strong><span>decoder throughput</span><small>amortized matched inference</small></article><article><strong>5.61M</strong><span>candidate index scale</span><small>shared UNION evaluation</small></article></div></div></section>
+
+    <section id="story" class="section wrap story">
+      <div class="section-tag">01 / Hierarchical execution</div>
+      <div class="story-grid"><h2>Hierarchical keys deserve<br><em>hierarchical execution.</em></h2><div class="story-copy"><p>A semantic ID is not a flat sentence. Its early codes route a query into a region; its later codes refine candidates inside that region.</p><p>Sequential decoding applies the same expensive operator at every level. P2L changes the operator when the index has already done the localization work.</p></div></div>
+      <div class="contrast"><div class="contrast-card old"><div class="card-label">Sequential</div><h3>Commit, score, prune.<br>Repeat.</h3><div class="sequence"><span></span><i></i><span></span><i></i><span></span><i></i><span></span><i></i><span></span></div><p>Every unresolved position becomes another dependent decision.</p></div><div class="contrast-arrow">or</div><div class="contrast-card new"><div class="card-label">Prefix-to-Leaf</div><h3>Localize, expose,<br>rank together.</h3><div class="sequence p2l-sequence"><span></span><i></i><span></span><i></i><b></b><div class="leaf-dots"><i></i><i></i><i></i><i></i><i></i></div></div><p>Delay the next pruning decision until suffix evidence arrives.</p></div></div>
+    </section>
+
+    <section id="demo" class="section demo-section"><div class="wrap"><div class="section-tag">02 / Execution trace</div><div class="demo-head"><h2>Sequential and P2L decoding.</h2><div class="demo-controls"><button class="mode-button active" data-mode="p2l">P2L</button><button class="mode-button" data-mode="sequential">Sequential</button><button class="play-button" id="play-toggle" aria-pressed="true">Pause</button></div></div><div class="demo-panel"><div class="demo-caption"><span class="caption-kicker">execution trace</span><strong id="demo-title">Prefix → leaf frontier</strong><p id="demo-description">The prefix is fixed first. Then every valid descendant receives suffix evidence before ranking.</p></div><svg id="demo-svg" viewBox="0 0 900 310" role="img" aria-label="Interactive execution trace"><g class="trace-grid"><line x1="86" y1="54" x2="86" y2="270"></line><line x1="266" y1="54" x2="266" y2="270"></line><line x1="446" y1="54" x2="446" y2="270"></line><line x1="626" y1="54" x2="626" y2="270"></line><line x1="806" y1="54" x2="806" y2="270"></line></g><g class="trace-labels"><text x="66" y="32">query</text><text x="225" y="32">prefix 1</text><text x="405" y="32">prefix 2</text><text x="587" y="32">switch</text><text x="760" y="32">rank</text></g><path class="trace-base" d="M88 160 L267 160 L447 160 L627 160"></path><path class="trace-p2l" d="M627 160 C690 64 730 64 806 78 M627 160 C690 110 730 110 806 121 M627 160 L806 164 M627 160 C690 212 730 212 806 207 M627 160 C690 256 730 256 806 250"></path><path class="trace-seq" d="M627 160 L806 160"></path><circle class="trace-node tn0" cx="88" cy="160" r="18"></circle><circle class="trace-node tn1" cx="267" cy="160" r="18"></circle><circle class="trace-node tn2" cx="447" cy="160" r="18"></circle><circle class="trace-node tn3" cx="627" cy="160" r="18"></circle><g class="ranked-leaves"><circle cx="806" cy="78" r="11"></circle><circle cx="806" cy="121" r="11"></circle><circle cx="806" cy="164" r="11"></circle><circle cx="806" cy="207" r="11"></circle><circle cx="806" cy="250" r="11"></circle></g><g class="trace-note"><rect x="637" y="70" width="106" height="28" rx="14"></rect><text x="654" y="88">one suffix pass</text></g></svg><div class="trace-footer"><span><i class="legend-dot prefix-dot"></i>dependent prefix decision</span><span><i class="legend-dot leaf-dot"></i>complete valid leaf</span><span id="round-counter">round 1 / 4</span></div></div></div></section>
+
+    <section id="cases" class="section cases-section"><div class="wrap"><div class="section-tag">03 / Qualitative retrieval cases</div><div class="cases-head"><div><h2>Representative retrieval cases.</h2><p>One case shows recovery after delayed suffix scoring; the other shows the retained-frontier limitation.</p></div><div class="case-tabs"><button class="case-tab active" data-case="recovery">Recovery</button><button class="case-tab" data-case="counter">Counterexample</button></div></div><div class="case-view"><div class="case-image-wrap"><img id="case-image" src="assets/case_recovery.png" alt="Recovery case: query, ground truth, Sequential plus PCAA result, and P2L plus PCAA result"></div><div class="case-info"><div class="case-kicker" id="case-kicker">case A · recovery</div><h3 id="case-title">Complete-leaf evidence recovers the relevant item.</h3><p id="case-text">The query asks for a dog with a human instead of another dog. Sequential+PCAA ranks the relevant item below the cutoff, while P2L+PCAA returns it at rank 1.</p><div class="case-results"><span class="bad"><i></i> Sequential+PCAA <b id="seq-rank">GT rank &gt;10</b></span><span class="good"><i></i> P2L+PCAA <b id="p2l-rank">GT rank 1</b></span></div></div></div></div></section>
+    <section id="walkthrough" class="section walkthrough-section"><div class="wrap"><div class="section-tag">04 / Query walkthrough</div><div class="walkthrough-head"><div><h2>One query, four execution steps.</h2><p>Use the button to move from the query representation to the final valid leaves. This is a precomputed visual trace, not an online model demo.</p></div><button class="next-step" id="walk-next">Next step <span>→</span></button></div><div class="walkthrough-layout"><div class="walk-query"><span class="query-type">composed query</span><div class="query-icon">⌁</div><h3>“Dog with human instead of another dog.”</h3><div class="query-tags"><span>image</span><span>text modification</span></div></div><div class="walk-stage"><div class="walk-progress"><span class="progress-fill" id="walk-progress"></span></div><div class="walk-steps"><article class="walk-step active" data-step="0"><span>01</span><div><b>Encode the query</b><p>Frozen query encoders provide the retrieval-space condition.</p></div></article><article class="walk-step" data-step="1"><span>02</span><div><b>Localize a prefix</b><p>Trie-valid children are scored and retained for the short prefix.</p></div></article><article class="walk-step" data-step="2"><span>03</span><div><b>Expose the frontier</b><p>All stored descendants beneath the retained prefix become visible.</p></div></article><article class="walk-step" data-step="3"><span>04</span><div><b>Rank complete IDs</b><p>Suffix evidence and optional PCAA refine the complete paths.</p></div></article></div><div class="walk-terminal"><span class="terminal-dot"></span><span id="walk-terminal-text">query memory ready</span><span class="terminal-caret">▌</span></div></div></div></div></section>
+
+    <section id="method" class="section wrap method-section"><div class="section-tag">05 / The method</div><h2>Three moves. One shared predictor.</h2><div class="method-cards"><article><span class="number">01</span><h3>Localize</h3><p>Traverse the Candidate Trie only long enough to find a useful prefix region.</p></article><article><span class="number">02</span><h3>Expose</h3><p>Enumerate the complete descendants that actually exist beneath retained prefixes.</p></article><article><span class="number">03</span><h3>Rank</h3><p>Aggregate unresolved-position evidence, then optionally refine paths with PCAA.</p></article></div><div class="pcaa-strip"><div class="pcaa-copy"><span class="number">OPTIONAL REFINEMENT</span><h3>PCAA follows the residual direction.</h3><p>After a prefix is reconstructed, each candidate codeword is compared with the remaining query direction and standardized within its codebook.</p></div><div class="pcaa-flow"><span>query</span><i>−</i><span>prefix reconstruction</span><i>=</i><strong>residual direction</strong><i>→</i><em>codeword affinity</em></div></div></section>
+
+    <section class="section release-section"><div class="wrap release-card"><div><div class="section-tag">06 / Reproducibility</div><h2>Code release and<br>evaluation artifacts.</h2><p>The code-only release includes source, configs, tests, lightweight evidence, and audit scripts. Large checkpoints and datasets remain external.</p></div><a class="pill dark" href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact" target="_blank" rel="noreferrer">Visit GitHub <span>↗</span></a></div></section>
+  </main>
+
+  <footer class="footer"><div class="wrap"><span>Prefix-to-Leaf · StructNAR</span><span>Code-only preview · 2026</span></div></footer>
+  <script src="app.js"></script>
+</body>
+</html>

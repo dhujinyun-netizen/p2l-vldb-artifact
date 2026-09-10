@@ -1,0 +1,138 @@
+.hero {
+  grid-template-columns: 0.82fr 1.18fr;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  row-gap: 30px;
+  padding-top: 84px;
+}
+
+.hero-heading-block {
+  grid-column: 1 / -1;
+}
+
+.paper-heading {
+  max-width: 980px;
+  margin: 24px 0 0;
+  color: var(--ink);
+  font-size: clamp(48px, 5.4vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.065em;
+  font-weight: 800;
+}
+
+.paper-heading span {
+  display: block;
+}
+
+.paper-heading .title-method {
+  color: var(--blue);
+}
+
+.paper-heading .title-rest {
+  margin-top: 10px;
+  color: var(--ink);
+  font-size: 0.54em;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.author-block {
+  max-width: 540px;
+  margin-top: 18px;
+}
+
+.hero-copy {
+  grid-column: 1;
+  padding-top: 5px;
+}
+
+.hero-teaser {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.section {
+  padding-block: 104px;
+}
+
+.results-heading {
+  display: block;
+}
+
+.results-heading h2 {
+  margin-top: 13px;
+}
+
+.authors {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.authors sup,
+.affiliations sup {
+  color: var(--blue);
+  font-size: 0.72em;
+}
+
+.affiliations {
+  margin-top: 4px;
+  color: #8795a5;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.hero-tagline {
+  max-width: 520px;
+  margin: 25px 0 0;
+  color: var(--blue);
+  font-size: clamp(22px, 2.5vw, 31px);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+@media (max-width: 820px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    row-gap: 30px;
+    padding-top: 70px;
+  }
+
+  .hero-heading-block,
+  .hero-copy,
+  .hero-teaser {
+    grid-column: 1;
+  }
+
+  .hero-copy {
+    grid-row: 2;
+  }
+
+  .hero-teaser {
+    grid-row: 3;
+  }
+
+  .paper-heading {
+    font-size: 53px;
+  }
+
+  .paper-heading .title-rest {
+    font-size: 0.62em;
+  }
+
+  .authors {
+    font-size: 13px;
+  }
+
+  .affiliations {
+    font-size: 11px;
+  }
+
+  .hero-tagline {
+    font-size: 26px;
+  }
+}
