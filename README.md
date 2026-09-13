@@ -7,17 +7,19 @@
 [Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0) ·
 [中文说明](README_CN.md)
 
-## Current manuscript and archived artifact
+## Current manuscript and artifact snapshot
 
-The homepage now follows the manuscript revision of **13 September 2026**:
+The repository follows the manuscript revision of **13 September 2026**:
 Independent-Suffix P2L, `s=3`, `B=K=50`, `lambda=0`; matched 16-task macro
 R@10 is **39.36% → 43.64% (+4.28 points)**. See the
 [current evidence/version note](docs/evidence-20260913.md) for evaluation scope.
 
-The current branch now contains the Independent-Suffix implementation,
-canonical `lambda=0` configuration, lightweight matched-policy evidence, and
-its no-data audit. The immutable **v1.0.0** tag remains an archived PCAA
-configuration and must not be presented as reproducing the current setup.
+The current branch contains the Independent-Suffix implementation, canonical
+`lambda=0` configuration, lightweight matched-policy evidence, the manuscript
+Figure 4 candidate-width points, a plotting entry point, and the no-data audit.
+The paper cites an immutable commit permalink for the submission-facing
+artifact snapshot. Historical release tags remain available for provenance and
+must not be relabeled as reproducing later evidence.
 
 This repository contains the source code, configuration files, lightweight
 evidence, and tests for **Prefix-to-Leaf (P2L)**. It is a code-only research
@@ -31,7 +33,8 @@ included before formal submission.
   audit scripts;
 - `configs/`: the configurations used by the reported experiments;
 - `docs/results/`: the small CSV/TSV/JSON evidence files used to verify the
-  headline numbers;
+  headline numbers, including `candidate_width_sweep.csv` for manuscript
+  Figure 4;
 - `tests/`: lightweight package tests;
 - `genius_env.yml` and `LICENSE`.
 
@@ -46,10 +49,17 @@ and command-line overrides so that an evaluator can provide them separately.
 The package supports two levels of verification.
 
 1. **No-data evidence audit.** This runs without a GPU, dataset, or checkpoint
-   and recomputes the headline values from the bundled lightweight evidence:
+   and recomputes the headline values from the bundled lightweight evidence,
+   including the 16 matched task-width points in Figure 4:
 
    ```bash
    python scripts/structnar/audit_current_release.py
+   ```
+
+   The Figure 4 visualization can be recreated from its lightweight CSV with:
+
+   ```bash
+   python scripts/structnar/plot_candidate_width_sweep.py
    ```
 
 2. **Full experiment reproduction.** This requires the official M-BEIR
@@ -67,10 +77,11 @@ The package supports two levels of verification.
    bash scripts/shared/setup_official_mbeir_symlink.sh /path/to/M-BEIR
    ```
 
-   The historical v1.0.0 PCAA configuration is
-   `configs/structnar/final_p2l_d3_rqc_cosine_w20.yaml`, using `s=3`,
-   `B=K=50`, standardized PCAA with `lambda=20`, and batch size 8.
-   It is not the current manuscript's default Independent-Suffix configuration.
+   Historical release boundaries are explicit: v1.0.0 is the older PCAA
+   configuration (`lambda=20`), while v2.0.0 matches the Independent-Suffix
+   `lambda=0` default but predates the candidate-width Figure 4 evidence.
+   Neither tag should be presented as the final submission snapshot; use the
+   immutable commit permalink cited by the paper.
 
 ## Environment
 
