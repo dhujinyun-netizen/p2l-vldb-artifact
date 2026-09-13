@@ -3972,10 +3972,25 @@ class T5ForGenerativeRetrieval(nn.Module):
         device = img_emb.device
         bs = len(img_emb)
 
+        profile_full_stages = (
+            torch.cuda.is_available()
+            and bool(int(os.environ.get("STRUCTNAR_PROFILE_FULL_STAGES", "0")))
+        )
+        full_stage_events = None
+        if profile_full_stages:
+            full_stage_events = [torch.cuda.Event(enable_timing=True) for _ in range(5)]
+            full_stage_events[0].record()
+
         q_output = self.quantizer.inference(img_emb, txt_emb, img_mask, txt_mask)
         emb = F.normalize(q_output['encode'])
 
+        if full_stage_events is not None:
+            full_stage_events[1].record()
+
         cond_prefix = self._project_condition(emb)
+
+        if full_stage_events is not None:
+            full_stage_events[2].record()
 
         if self.use_soundstorm_full_model:
             K = max(1, int(num_beams))
@@ -4073,6 +4088,9 @@ class T5ForGenerativeRetrieval(nn.Module):
             rrg_query_embedding=emb,
         )
 
+        if full_stage_events is not None:
+            full_stage_events[3].record()
+
         if return_beam_scores:
             output_token_ids, beam_scores = search_output
         else:
@@ -4080,6 +4098,13 @@ class T5ForGenerativeRetrieval(nn.Module):
 
         output_codes = self._token_ids_to_codes(output_token_ids)
         query_embedding = F.normalize(img_emb * img_mask + txt_emb * txt_mask)
+        if full_stage_events is not None:
+            full_stage_events[4].record()
+            if not hasattr(self, "_structnar_full_stage_events"):
+                self._structnar_full_stage_events = []
+            self._structnar_full_stage_events.append(
+                (full_stage_events, int(bs))
+            )
         if return_beam_scores:
             return output_codes.detach(), query_embedding, beam_scores.detach()
         return output_codes.detach(), query_embedding
@@ -4100,10 +4125,23 @@ class T5ForGenerativeRetrieval(nn.Module):
         assert id_list is not None, "id_list must be provided."
         assert isinstance(id_list[0], int), "id_list must be hashed to int."
 
+        profile_full_stages = (
+            torch.cuda.is_available()
+            and bool(int(os.environ.get("STRUCTNAR_PROFILE_FULL_STAGES", "0")))
+        )
+        query_input_events = None
+        if profile_full_stages:
+            query_input_events = (
+                torch.cuda.Event(enable_timing=True),
+                torch.cuda.Event(enable_timing=True),
+            )
+            query_input_events[0].record()
         img_emb, txt_emb = self.clip_model.encode_multimodal_input(
             batch["image_batched"],
             batch["txt_batched"],
         )
+        if query_input_events is not None:
+            query_input_events[1].record()
         img_mask = batch["image_mask_batched"].unsqueeze(-1)
         txt_mask = batch["txt_mask_batched"].unsqueeze(-1)
         assert img_emb.size(0) == len(id_list), "embeddings and id_batched must have the same batch size."
@@ -4119,6 +4157,12 @@ class T5ForGenerativeRetrieval(nn.Module):
                 cand_codes=decode_cand_codes,
                 return_beam_scores=True,
             )
+            if query_input_events is not None:
+                if not hasattr(self, "_structnar_query_input_events"):
+                    self._structnar_query_input_events = []
+                self._structnar_query_input_events.append(
+                    (query_input_events, int(len(id_list)))
+                )
             return output, embeddings, torch.LongTensor(id_list), beam_scores
 
         output, embeddings = self.inference(
@@ -4131,6 +4175,12 @@ class T5ForGenerativeRetrieval(nn.Module):
             cand_codes=decode_cand_codes,
             return_beam_scores=False,
         )
+        if query_input_events is not None:
+            if not hasattr(self, "_structnar_query_input_events"):
+                self._structnar_query_input_events = []
+            self._structnar_query_input_events.append(
+                (query_input_events, int(len(id_list)))
+            )
         return output, embeddings, torch.LongTensor(id_list)
 
     # =====================================================

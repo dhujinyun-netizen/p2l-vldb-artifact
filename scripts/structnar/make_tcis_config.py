@@ -139,6 +139,10 @@ def main() -> int:
             "hierarchy_block_sizes": sizes,
             "hierarchy_block_names": names,
             "use_tcis": True,
+            # The formal campaign must use the blockwise Trie-constrained
+            # path.  Never inherit a stale one-pass complete-ID decoder from
+            # the base evaluation config.
+            "use_one_pass_tcis": False,
             "gpt_hdgr_block_diffusion_steps": max(1, int(args.block_refinement_steps)),
             "gpt_hdgr_block_score_normalization": str(args.block_score_mode),
             "block_trie_max_candidates": 0,
@@ -181,7 +185,11 @@ def main() -> int:
     ret["rerank"] = True
     ret["use_hybrid_score"] = False
     ret["save_beam_scores"] = True
-    ret["load_saved_beam_scores"] = True
+    # Every formal evaluation recomputes its query beams.  Retrieval may read
+    # the scores written by the immediately preceding generation stage only
+    # when explicitly requested by a dedicated score-fusion experiment; the
+    # default must never admit a stale result from an earlier policy.
+    ret["load_saved_beam_scores"] = False
     dataset = str(args.dataset)
     ret["results_dir_name"] = f"retrieval_results/structnar_tcis/{dataset}"
 

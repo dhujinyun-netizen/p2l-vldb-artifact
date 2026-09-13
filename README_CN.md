@@ -9,11 +9,10 @@
 `lambda=0`，16 个 LOCAL 任务的 matched macro R@10 为
 **39.36% → 43.64%（+4.28 个百分点）**。
 
-**下文是历史 v1.0.0 的复现说明，不是当前稿件的最终配置。**
-既有 `docs/results/` 与发布包保留旧结果（P2L macro 42.83%）和 PCAA
-配置，不应改名后充当新版证据。本次只更新主页和文档，不修改实验代码、
-原始证据或已发布标签；当前 Independent-Suffix 配置仍需要单独核验并发布
-对应的代码与证据包。
+当前分支已加入 Independent-Suffix 实现、`lambda=0` 默认配置和轻量审计；
+历史 `v1.0.0` 标签仍保持不变，不代表当前配置。
+当前证据表保留 Sequential、Interacting-Suffix 与 Independent-Suffix 三种
+策略的并列结果；旧 PCAA 文件仅用于复核历史 v1.0.0，不作为新版证据。
 
 本项目包含 **P2L** 的代码与轻量证据。由于论文尚未正式投稿，公开仓库不包含
 主文、补充材料 PDF 或投稿专用 LaTeX 文件；主页包含方法框架预览图。公开包不包含模型权重、
@@ -78,48 +77,46 @@ gen_code/.../cand_pool/           候选 semantic-ID 与 Trie 缓存
 
 路径可通过 YAML、`MBEIR_DATA_DIR`、`CKPT_DIR` 和 `CKPT_NAME` 覆盖。
 
-## 4. 历史 PCAA 配置的 CIRR-7 评测
+## 4. 当前配置与历史配置
 
 在项目根目录运行：
 
 ```bash
 MBEIR_DATA_DIR=/path/to/M-BEIR \
 CUDA_VISIBLE_DEVICES=0 \
-CONFIG_PATH=configs/structnar/final_p2l_d3_rqc_cosine_w20.yaml \
+CONFIG_PATH=configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml \
 CHECK_EXTRACTED=0 NPROC=1 MASTER_PORT=3971 \
 bash scripts/structnar/run_eval.py.sh
 ```
 
-该配置会重新生成 CIRR-7 LOCAL 的 P2L+PCAA 结果，不默认复用旧 beam。
+该配置对应当前 Independent-Suffix、`lambda=0` 实现。
 其他任务和 UNION 评测应从同一配置复制，只修改明确列出的数据集、候选池
-和输出路径字段；不得修改 `s`、`B/K`、PCAA 或 checkpoint 后仍称为最终
-配置。
+和输出路径字段；不得修改 `s`、`B/K`、suffix visibility 或 checkpoint 后
+仍称为同一配置。历史 PCAA 配置仍保留在
+`configs/structnar/final_p2l_d3_rqc_cosine_w20.yaml`。
 
 ## 5. 无权重证据核验
 
-以下命令只读取包内轻量 CSV/JSON/YAML 与论文源文件，不需要数据集或
+以下命令只读取包内轻量 CSV，不需要数据集或
 checkpoint：
 
 ```bash
-python scripts/structnar/audit_release_evidence.py
+python scripts/structnar/audit_current_release.py
 ```
 
-该便携审计从包内表格重新计算投稿最重要的四组数字：16 个 LOCAL
-任务上的 matched `lambda=0` 宏平均及 16/16 改善、CIRR-7 五级候选池的
-generation 与 warm decode-to-rerank 降幅、复现 GENIUS-R 与 P2L-R 的
-UNION 宏平均及 16/16 改善，以及 5.61M exact GPU FlatIP 参考点。它还
-核对这些 headline 是否出现在论文源文件中，并验证发布包的 SHA-256
-清单；若纳入 optimized GPU-flat Trie 基线，也会检查其汇总审计结果。
+该便携审计重新计算三种策略的 16 任务宏平均，检查当前
+Independent-Suffix 相对 Sequential 的 16/16 正增益，并检查四任务、四深度
+validation sensitivity 表是否完整以及测试深度 3 是否均取得最高 R@10。
 
 `audit_vldb_evidence.py` 是更深的项目内审计，还会核对原始日志、候选
 产物和 checkpoint 哈希；准备好这些外部资产后可在完整工作区运行，但它
 不是无权重发布包的默认入口。
 
-## 6. 历史发布包记录的复现范围
+## 6. 当前轻量证据与历史证据边界
 
 - 在相同 checkpoint、realized semantic-ID index、Trie、beam 与 reranker
   下，`lambda=0` 的 P2L 在 16/16 个 LOCAL 任务上提高 R@10，宏平均从
-  39.36 提高到 42.83。
+  39.36 提高到 43.64；Interacting-Suffix 的历史同口径宏平均为 42.83。
 - 在五个嵌套 CIRR-7 候选池上，最终 P2L 配置相对 Sequential+PCAA 将
   decoder-side generation time 降低 51.5%--53.8%，并将 warm
   decode-to-rerank latency 降低 50.5%--53.0%。

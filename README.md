@@ -3,6 +3,7 @@
 **Deferred Selection and Shared Suffix Scoring for Semantic-ID Retrieval**
 
 [Project homepage](https://dhujinyun-netizen.github.io/p2l-vldb-artifact/) ·
+[Current code](configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml) ·
 [Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0) ·
 [中文说明](README_CN.md)
 
@@ -13,12 +14,10 @@ Independent-Suffix P2L, `s=3`, `B=K=50`, `lambda=0`; matched 16-task macro
 R@10 is **39.36% → 43.64% (+4.28 points)**. See the
 [current evidence/version note](docs/evidence-20260913.md) for evaluation scope.
 
-The immutable **v1.0.0** release and the existing `docs/results/` evidence
-predate that revision. Their older 42.83% macro and PCAA configurations must
-not be presented as reproducing the current manuscript. This website update
-does not change experiment code, historical results, or the release tag.
-A separately validated code/evidence release is still needed for the current
-configuration.
+The current branch now contains the Independent-Suffix implementation,
+canonical `lambda=0` configuration, lightweight matched-policy evidence, and
+its no-data audit. The immutable **v1.0.0** tag remains an archived PCAA
+configuration and must not be presented as reproducing the current setup.
 
 This repository contains the source code, configuration files, lightweight
 evidence, and tests for **Prefix-to-Leaf (P2L)**. It is a code-only research
@@ -50,7 +49,7 @@ The package supports two levels of verification.
    and recomputes the headline values from the bundled lightweight evidence:
 
    ```bash
-   python scripts/structnar/audit_release_evidence.py
+   python scripts/structnar/audit_current_release.py
    ```
 
 2. **Full experiment reproduction.** This requires the official M-BEIR
@@ -59,7 +58,9 @@ The package supports two levels of verification.
    experiment-specific paths before running the scripts under
    `scripts/structnar/`.
 
-   After downloading the official M-BEIR release, link it into the artifact
+   The current reference configuration is
+   `configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml`. After
+   downloading the official M-BEIR release, link it into the artifact
    checkout with:
 
    ```bash

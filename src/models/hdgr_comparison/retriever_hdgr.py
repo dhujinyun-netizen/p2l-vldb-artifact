@@ -406,6 +406,7 @@ def build_hdgr_attention_mask(
     batch_size: int,
     device: torch.device,
     valid_mask: Optional[torch.Tensor] = None,
+    clean_visible_mask: Optional[torch.Tensor] = None,
     block_spans: Optional[list[tuple[int, int]]] = None,
 ) -> torch.Tensor:
     """
@@ -452,6 +453,23 @@ def build_hdgr_attention_mask(
         valid_2 = torch.cat([valid_mask, valid_mask], dim=1).bool()  # [B, 2L]
         key_invalid = ~valid_2[:, None, :]
         mask = mask.masked_fill(key_invalid, VERY_NEGATIVE)
+
+    # During prefix-conditioned inference, the clean-context half contains
+    # MASK placeholders after the committed prefix.  Those placeholders are
+    # not visible identifier states and must not become keys merely because an
+    # isolated suffix is represented as singleton hierarchy blocks.  The noisy
+    # half remains valid so that each unresolved position can read its own
+    # noisy MASK state.
+    if clean_visible_mask is not None:
+        if tuple(clean_visible_mask.shape) != (batch_size, L):
+            raise ValueError(
+                "clean_visible_mask must have shape "
+                f"({batch_size}, {L}), got {tuple(clean_visible_mask.shape)}"
+            )
+        clean_key_invalid = ~clean_visible_mask.to(device=device).bool()
+        mask[:, :, L:] = mask[:, :, L:].masked_fill(
+            clean_key_invalid[:, None, :], VERY_NEGATIVE
+        )
 
     return mask
 

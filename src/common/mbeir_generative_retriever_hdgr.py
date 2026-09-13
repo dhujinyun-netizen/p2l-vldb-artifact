@@ -1136,6 +1136,76 @@ def generate_codes_for_dataset(
                 f"normalized_query_p99_ms={np.percentile(per_query_ms, 99):.6f}"
             )
             base_model = model.module if hasattr(model, "module") else model
+            full_stage_profile_path = os.environ.get(
+                "STRUCTNAR_FULL_STAGE_PROFILE_PATH", ""
+            ).strip()
+            if full_stage_profile_path:
+                all_generation_ms = []
+                for start, end, batch_size in batch_profile_events:
+                    normalized_ms = start.elapsed_time(end) / max(int(batch_size), 1)
+                    all_generation_ms.extend([normalized_ms] * int(batch_size))
+
+                def _event_segments(event_rows, segment_count):
+                    outputs = [[] for _ in range(segment_count)]
+                    for events, batch_size in event_rows:
+                        for segment in range(segment_count):
+                            normalized_ms = (
+                                events[segment].elapsed_time(events[segment + 1])
+                                / max(int(batch_size), 1)
+                            )
+                            outputs[segment].extend([normalized_ms] * int(batch_size))
+                    return outputs
+
+                query_input_rows = getattr(
+                    base_model, "_structnar_query_input_events", []
+                )
+                query_input_segments = _event_segments(query_input_rows, 1)
+                inference_rows = getattr(
+                    base_model, "_structnar_full_stage_events", []
+                )
+                inference_segments = _event_segments(inference_rows, 4)
+                profile_size = min(
+                    len(id_list_local),
+                    len(all_generation_ms),
+                    len(query_input_segments[0]) if query_input_segments else 0,
+                    len(inference_segments[0]) if inference_segments else 0,
+                )
+                if profile_size != len(id_list_local):
+                    raise RuntimeError(
+                        "Full-stage profiler lost query rows: "
+                        f"ids={len(id_list_local)} generation={len(all_generation_ms)} "
+                        f"query_input={len(query_input_segments[0]) if query_input_segments else 0} "
+                        f"inference={len(inference_segments[0]) if inference_segments else 0}"
+                    )
+                warmup_queries = sum(
+                    int(batch_size)
+                    for _, _, batch_size in batch_profile_events[:warmup_batches]
+                )
+                os.makedirs(os.path.dirname(full_stage_profile_path), exist_ok=True)
+                np.savez_compressed(
+                    full_stage_profile_path,
+                    query_id=np.asarray(id_list_local[:profile_size]),
+                    warmup_queries=np.asarray([warmup_queries], dtype=np.int64),
+                    generation_ms=np.asarray(all_generation_ms[:profile_size], dtype=np.float64),
+                    query_input_ms=np.asarray(query_input_segments[0][:profile_size], dtype=np.float64),
+                    rq_pipeline_ms=np.asarray(inference_segments[0][:profile_size], dtype=np.float64),
+                    query_projector_ms=np.asarray(inference_segments[1][:profile_size], dtype=np.float64),
+                    semantic_search_ms=np.asarray(inference_segments[2][:profile_size], dtype=np.float64),
+                    output_finalize_ms=np.asarray(inference_segments[3][:profile_size], dtype=np.float64),
+                )
+                measured_slice = slice(warmup_queries, profile_size)
+                print(
+                    "Full Generation Stage Breakdown: "
+                    f"queries={profile_size - warmup_queries} "
+                    f"query_input_mean_ms={np.mean(query_input_segments[0][measured_slice]):.6f} "
+                    f"rq_pipeline_mean_ms={np.mean(inference_segments[0][measured_slice]):.6f} "
+                    f"query_projector_mean_ms={np.mean(inference_segments[1][measured_slice]):.6f} "
+                    f"semantic_search_mean_ms={np.mean(inference_segments[2][measured_slice]):.6f} "
+                    f"output_finalize_mean_ms={np.mean(inference_segments[3][measured_slice]):.6f} "
+                    f"profile={full_stage_profile_path}"
+                )
+                delattr(base_model, "_structnar_query_input_events")
+                delattr(base_model, "_structnar_full_stage_events")
             tcis_owner = getattr(base_model, "id_generator", None) or base_model
             event_owner = (
                 tcis_owner
@@ -2255,7 +2325,9 @@ def retrieve_and_rank_for_query(query_code,
                                 hybrid_score_method="weighted_zscore",
                                 hybrid_clip_weight=0.8,
                                 hybrid_generator_weight=0.2,
-                                hybrid_rrf_k=60.0):
+                                hybrid_rrf_k=60.0,
+                                stage_profile=None):
+    lookup_started_at = time.perf_counter()
     unique_candidates, generation_meta = _candidate_generation_metadata(
         query_code=query_code,
         cand_pool_hash_map=cand_pool_hash_map,
@@ -2263,6 +2335,11 @@ def retrieve_and_rank_for_query(query_code,
     )
 
     if len(unique_candidates) == 0:
+        if stage_profile is not None:
+            stage_profile["lookup_seconds"].append(
+                time.perf_counter() - lookup_started_at
+            )
+            stage_profile["rerank_seconds"].append(0.0)
         return []
 
     # Convert to PyTorch tensors
@@ -2270,7 +2347,14 @@ def retrieve_and_rank_for_query(query_code,
     filtered_candidates = [cand_id for cand_id in unique_candidates if cand_id in id_to_index_map]
     candidate_indices = [id_to_index_map[cand_id] for cand_id in filtered_candidates]
     if len(candidate_indices) == 0:
+        if stage_profile is not None:
+            stage_profile["lookup_seconds"].append(
+                time.perf_counter() - lookup_started_at
+            )
+            stage_profile["rerank_seconds"].append(0.0)
         return []
+    lookup_seconds = time.perf_counter() - lookup_started_at
+    rerank_started_at = time.perf_counter()
     candidate_embeddings_tensor = torch.tensor(cand_pool_embeddings[candidate_indices], dtype=torch.float32)
 
     # Calculate cosine similarities
@@ -2338,6 +2422,12 @@ def retrieve_and_rank_for_query(query_code,
 
     # Map back to candidate IDs
     top_k_candidates = [filtered_candidates[i] for i in top_k_indices]
+
+    if stage_profile is not None:
+        stage_profile["lookup_seconds"].append(lookup_seconds)
+        stage_profile["rerank_seconds"].append(
+            time.perf_counter() - rerank_started_at
+        )
 
     return top_k_candidates
 
@@ -2605,6 +2695,13 @@ def generative_retrieve(config):
             # Retrieve indices for all queries
             retrieved_indices = []
             retrieval_query_seconds = []
+            profile_full_stages = bool(
+                int(os.environ.get("STRUCTNAR_PROFILE_FULL_STAGES", "0"))
+            )
+            retrieval_stage_profile = {
+                "lookup_seconds": [],
+                "rerank_seconds": [],
+            }
             for i, query_code in enumerate(query_codes):
                 query_retrieval_started_at = time.perf_counter()
                 if retrieval_config.rerank:
@@ -2622,10 +2719,75 @@ def generative_retrieve(config):
                         hybrid_clip_weight=hybrid_clip_weight,
                         hybrid_generator_weight=hybrid_generator_weight,
                         hybrid_rrf_k=hybrid_rrf_k,
+                        stage_profile=(
+                            retrieval_stage_profile if profile_full_stages else None
+                        ),
                     ))
                 else:
                     retrieved_indices.append(retrieve_indices_for_query(query_code, cand_pool_hash_map, k))
                 retrieval_query_seconds.append(time.perf_counter() - query_retrieval_started_at)
+
+            full_stage_profile_path = os.environ.get(
+                "STRUCTNAR_FULL_STAGE_PROFILE_PATH", ""
+            ).strip()
+            if profile_full_stages and full_stage_profile_path:
+                if not os.path.isfile(full_stage_profile_path):
+                    raise FileNotFoundError(
+                        "Generation did not write the required full-stage profile: "
+                        f"{full_stage_profile_path}"
+                    )
+                with np.load(full_stage_profile_path, allow_pickle=False) as source:
+                    profile_arrays = {key: source[key] for key in source.files}
+                generated_ids = np.asarray(profile_arrays["query_id"])
+                retrieval_ids = np.asarray(query_ids)
+                if not np.array_equal(generated_ids, retrieval_ids):
+                    raise RuntimeError(
+                        "Full-stage generation/retrieval query IDs are not aligned"
+                    )
+                retrieval_ms = np.asarray(
+                    retrieval_query_seconds, dtype=np.float64
+                ) * 1000.0
+                lookup_ms = np.asarray(
+                    retrieval_stage_profile["lookup_seconds"], dtype=np.float64
+                ) * 1000.0
+                rerank_ms = np.asarray(
+                    retrieval_stage_profile["rerank_seconds"], dtype=np.float64
+                ) * 1000.0
+                if not (
+                    retrieval_ms.size == lookup_ms.size == rerank_ms.size
+                    == generated_ids.size
+                ):
+                    raise RuntimeError(
+                        "Full-stage retrieval profile has inconsistent row counts"
+                    )
+                e2e_ms = np.asarray(profile_arrays["generation_ms"], dtype=np.float64) + retrieval_ms
+                warmup_queries = int(np.asarray(profile_arrays["warmup_queries"]).reshape(-1)[0])
+                measured = slice(warmup_queries, e2e_ms.size)
+                profile_arrays.update(
+                    retrieval_ms=retrieval_ms,
+                    bucket_lookup_ms=lookup_ms,
+                    embedding_rerank_ms=rerank_ms,
+                    online_decode_to_rerank_ms=e2e_ms,
+                )
+                np.savez_compressed(full_stage_profile_path, **profile_arrays)
+                residual_ms = retrieval_ms - lookup_ms - rerank_ms
+                print(
+                    "Retrieval Stage Breakdown: "
+                    f"queries={e2e_ms.size - warmup_queries} "
+                    f"bucket_lookup_mean_ms={lookup_ms[measured].mean():.6f} "
+                    f"embedding_rerank_mean_ms={rerank_ms[measured].mean():.6f} "
+                    f"retrieval_wrapper_mean_ms={residual_ms[measured].mean():.6f}"
+                )
+                print(
+                    "Online Decode-to-Rerank Latency Distribution: "
+                    f"queries={e2e_ms.size - warmup_queries} "
+                    f"warmup_queries_excluded={warmup_queries} "
+                    f"p50_ms={np.percentile(e2e_ms[measured], 50):.6f} "
+                    f"p95_ms={np.percentile(e2e_ms[measured], 95):.6f} "
+                    f"p99_ms={np.percentile(e2e_ms[measured], 99):.6f} "
+                    f"mean_ms={e2e_ms[measured].mean():.6f} "
+                    f"profile={full_stage_profile_path}"
+                )
 
             if not os.path.exists(exp_run_file_dir):
                 os.makedirs(exp_run_file_dir)

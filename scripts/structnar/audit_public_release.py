@@ -25,13 +25,11 @@ REQUIRED = (
     "README_CN.md",
     "LICENSE",
     "genius_env.yml",
-    "RELEASE_SHA256SUMS.txt",
-    "scripts/structnar/audit_release_evidence.py",
+    "scripts/structnar/audit_current_release.py",
     "scripts/structnar/audit_public_release.py",
     "src",
     "configs",
     "tests",
-    "VLDB/vldb2027/structnar_vldb.tex",
 )
 
 

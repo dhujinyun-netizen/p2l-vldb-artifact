@@ -182,6 +182,7 @@ class RetrieverDiffusionHDGRBackbone(nn.Module):
             batch_size=B,
             device=tokens.device,
             valid_mask=valid_mask,
+            clean_visible_mask=x0_context.ne(self.mask_token_id),
             block_spans=effective_spans,
         )
 
@@ -1019,6 +1020,32 @@ class T5ForGenerativeRetrieval(GPTDiffusionRetriever):
             top_n = min(keep_k, all_scores.numel())
             top_scores, top_idx = torch.topk(all_scores, k=top_n, dim=0)
             top_seqs = all_seqs.index_select(0, top_idx)
+            # Optional, read-only trace for joint-suffix research.  It runs
+            # after the canonical top-k decision and cannot alter scores or
+            # selected identifiers.  Unlike the older decision hook, this
+            # preserves the per-position states of a multi-token block.
+            joint_suffix_hook = getattr(
+                self, "_semantic_joint_suffix_selected_trace_hook", None
+            )
+            if joint_suffix_hook is not None:
+                latest_hidden = getattr(self, "_latest_semantic_cond_hidden", None)
+                if latest_hidden is None:
+                    raise RuntimeError(
+                        "Joint-suffix trace requested without captured HDGR states"
+                    )
+                parent_hidden = latest_hidden.view(B, K0, L, -1)[
+                    b
+                ].index_select(0, cand_parent)
+                joint_suffix_hook(
+                    batch_index=b,
+                    start_index=start,
+                    end_index=end,
+                    candidate_sequences=top_seqs.detach(),
+                    canonical_scores=top_scores.detach(),
+                    hidden_states_by_position=parent_hidden.index_select(
+                        0, top_idx
+                    )[:, start:end].detach(),
+                )
             if profile_components and block_len > 1:
                 topk_end.record()
                 if not hasattr(self, "_tcis_component_event_rows"):
