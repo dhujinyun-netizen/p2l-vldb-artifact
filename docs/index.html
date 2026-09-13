@@ -7,13 +7,14 @@
   <meta name="description" content="Prefix-to-Leaf (P2L): deferred selection and shared suffix scoring for semantic-ID retrieval. Method, experimental results, and versioned research code.">
   <title>Prefix-to-Leaf: Deferred Selection and Shared Suffix Scoring for Semantic-ID Retrieval</title>
   <link rel="canonical" href="https://dhujinyun-netizen.github.io/p2l-vldb-artifact/">
-  <link rel="stylesheet" href="academic.css?v=20260913">
+  <link rel="stylesheet" href="academic.css?v=20260913-interactive">
+  <script src="method-demo.js?v=20260913" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="masthead">
     <a class="wordmark" href="#top">P2L <span>Research project</span></a>
-    <nav aria-label="Main navigation"><a href="#overview">Overview</a><a href="#method">Method</a><a href="#results">Results</a><a href="#resources">Resources</a></nav>
+    <nav aria-label="Main navigation"><a href="#overview">Overview</a><a href="#method">Method</a><a href="#execution">Animation</a><a href="#results">Results</a><a href="#cases">Cases</a><a href="#resources">Resources</a></nav>
   </header>
   <main id="content">
     <section id="top" class="hero" aria-labelledby="paper-title">
@@ -38,8 +39,28 @@
       <ol class="method-steps"><li><h3>Retain a short prefix</h3><p>Trie-constrained search localizes the query to a set of prefixes. The default switch depth is <i>s</i> = 3, including the modality-routing code.</p></li><li><h3>Share suffix prediction</h3><p>Enumerate stored descendants and score unresolved positions in one suffix round. Each position attends to the query and prefix, independently of other suffix positions.</p></li><li><h3>Select complete identifiers</h3><p>Aggregate prefix and suffix scores, then select the top 50 complete IDs across the retained frontier. Exact-ID expansion and embedding reranking are reused.</p></li></ol>
       <div class="prose"><p class="scope-note">Selection is exact within the enumerated frontier, not over the full index. P2L cannot recover a leaf whose prefix was already pruned. The default uses <i>B</i> = <i>K</i> = 50 and λ = 0; PCAA is not part of this configuration.</p></div>
     </section>
+    <section id="execution" class="section" aria-labelledby="execution-title">
+      <div class="section-label">03 / Interactive explanation</div>
+      <div class="prose"><h2 id="execution-title">From prefix decisions to complete-ID selection</h2><p>Follow one query through prefix search, descendant enumeration, shared suffix scoring, and final selection. The animation illustrates the default Independent-Suffix policy; it is not a recorded model run.</p></div>
+      <div class="execution-demo" data-stage="3">
+        <div class="demo-toolbar"><span class="demo-label">P2L · λ = 0 · <i>s</i> = 3</span><div class="demo-controls" hidden><button type="button" id="demo-play" aria-pressed="false">Play animation</button><button type="button" id="demo-reset">Reset</button><button type="button" id="demo-next">Next step →</button></div></div>
+        <ol class="demo-stages" aria-label="Execution stages">
+          <li><button type="button" data-step="0" disabled><span>01</span> Prefix search</button></li><li><button type="button" data-step="1" disabled><span>02</span> Enumerate</button></li><li><button type="button" data-step="2" disabled><span>03</span> Score suffixes</button></li><li><button type="button" data-step="3" disabled><span>04</span> Select IDs</button></li>
+        </ol>
+        <div class="execution-board">
+          <div class="demo-block prefix-block"><div class="block-label">Query + retained prefixes</div><div class="query-token">Query <i>q</i></div><div class="connector" aria-hidden="true">↓</div><div class="prefix-pair"><span>Prefix A</span><span>Prefix B</span></div><p>Three routing codes<br>Trie-valid top-B prefixes</p></div>
+          <div class="demo-block frontier-block"><div class="block-label">Stored descendants</div><div class="leaf-key">A · α · β <span>y₁</span></div><div class="leaf-key">A · γ · δ <span>y₂</span></div><div class="leaf-key">B · α · δ <span>y₃</span></div><p>Enumerate valid leaves<br>No suffix beam pruning</p></div>
+          <div class="demo-block score-block"><div class="block-label">Shared suffix evidence</div><div class="mini-matrix" aria-label="Illustrative per-prefix score matrix with two suffix positions and four code choices"><span></span><span>α</span><span>β</span><span>γ</span><span>δ</span><span>j</span><i class="heat h3"></i><i class="heat h1"></i><i class="heat h2"></i><i class="heat h1"></i><span>j+1</span><i class="heat h1"></i><i class="heat h3"></i><i class="heat h1"></i><i class="heat h2"></i></div><p>One matrix per prefix<br>Query + prefix only</p><span class="independence-note">No suffix-to-suffix attention</span></div>
+          <div class="demo-block rank-block"><div class="block-label">Complete-ID ranking</div><div class="ranked-key"><span>1</span> y₃ <i>selected</i></div><div class="ranked-key"><span>2</span> y₁ <i>selected</i></div><div class="ranked-key muted-key"><span>3</span> y₂</div><p>Prefix + suffix scores<br>Global top-K in the frontier</p></div>
+        </div>
+        <div class="demo-narration" aria-live="polite" aria-atomic="true"><span id="demo-count">04 / 04</span><p id="demo-description">Complete identifiers are ranked across the retained frontier. Exact-ID expansion and the frozen embedding reranker follow.</p></div>
+        <div class="round-comparison"><div><span>Sequential</span><div class="round-track sequential-rounds" aria-label="Nine dependent guided rounds"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i></div><small>9 guided rounds</small></div><div><span>P2L</span><div class="round-track p2l-rounds" aria-label="Three prefix rounds and one shared suffix round"><i>1</i><i>2</i><i>3</i><i class="suffix-round">Suffix</i></div><small>3 + 1 guided rounds</small></div></div>
+        <p class="demo-footnote">Schematic keys, scores, and ordering; two suffix positions and three leaves are shown for readability. The round counts refer to length-9 IDs at s = 3, assuming the suffix fits one batch. Playback duration does not represent latency.</p>
+        <noscript><p class="demo-footnote">JavaScript is disabled. The complete four-stage diagram remains visible; enable JavaScript to step through it.</p></noscript>
+      </div>
+    </section>
     <section id="results" class="section" aria-labelledby="results-title">
-      <div class="section-label">03 / Evaluation</div>
+      <div class="section-label">04 / Evaluation</div>
       <div class="prose"><h2 id="results-title">Effectiveness, selection, and execution cost</h2><p>The following results describe the current manuscript’s Independent-Suffix configuration. The matched comparison holds the checkpoint, realized candidate index, beam budget, and reranker fixed.</p></div>
       <div class="table-wrap" role="region" aria-label="Main experimental findings" tabindex="0"><table><caption>Current experimental evidence</caption><thead><tr><th scope="col">Question</th><th scope="col">Evaluation</th><th scope="col">Finding</th></tr></thead><tbody>
         <tr><th scope="row">Does retrieval improve?</th><td>16 LOCAL tasks · matched decoder comparison</td><td>Macro R@10: 39.36% → <strong>43.64%</strong><small>+4.28 percentage points; 95% CI [4.03, 4.53]</small></td></tr>
@@ -68,8 +89,21 @@
         <tr><th scope="row">InfoSeek-8</th><td>35.03</td><td>36.69</td><td>+1.66</td><td>[1.27, 2.05]</td></tr>
       </tbody><tfoot><tr><th scope="row">Task macro</th><td>39.36</td><td>43.64</td><td>+4.28</td><td>[4.03, 4.53]</td></tr></tfoot></table></div></details>
     </section>
+    <section id="cases" class="section" aria-labelledby="cases-title">
+      <div class="section-label">05 / Case analysis</div>
+      <div class="prose"><h2 id="cases-title">A recovered target—and a missed one</h2><p>Two CIRR-7 queries show both outcomes under the current matched Sequential and Independent-Suffix P2L configurations (λ = 0). Each comparison displays the query, annotated target, and the actual top-ranked item returned by each method.</p></div>
+      <article class="retrieval-case" aria-labelledby="recovery-title"><div class="case-heading"><div><span class="case-label">Case A / Recovery · query 8:17</span><h3 id="recovery-title">“Dog with human instead of another dog.”</h3></div><span class="rank-change">Target rank <b>&gt;10 → 1</b></span></div>
+        <div class="case-images"><figure><a href="assets/current-cases/recovery-query.jpg"><img src="assets/current-cases/recovery-query.jpg" alt="CIRR query image for the instruction to replace another dog with a human" loading="lazy"></a><figcaption>Query image</figcaption></figure><figure><a href="assets/current-cases/recovery-target.jpg"><img src="assets/current-cases/recovery-target.jpg" alt="Annotated target showing a dog with a person" loading="lazy"></a><figcaption>Annotated target <span>8:15709</span></figcaption></figure><figure><a href="assets/current-cases/recovery-sequential.jpg"><img src="assets/current-cases/recovery-sequential.jpg" alt="Actual Sequential top-1 result for query 8:17; not the annotated target" loading="lazy"></a><figcaption>Sequential · top 1 <span>Target absent from top 10</span></figcaption></figure><figure class="target-hit"><a href="assets/current-cases/recovery-p2l.jpg"><img src="assets/current-cases/recovery-p2l.jpg" alt="Actual Independent-Suffix P2L top-1 result for query 8:17, matching the annotated target" loading="lazy"></a><figcaption>P2L · top 1 <span>Target retrieved at rank 1</span></figcaption></figure></div>
+        <p class="case-reading"><strong>Reading the result.</strong> P2L places the annotated target first, while Sequential does not return it in the saved top 10. Both top-1 images contain a dog and a person: the distinction is recovery of the annotated target, not simply recognition of the requested human presence.</p>
+      </article>
+      <article class="retrieval-case" aria-labelledby="failure-title"><div class="case-heading"><div><span class="case-label">Case B / Failure · query 8:1053</span><h3 id="failure-title">“The target shows one panda with one hand on his mouth.”</h3></div><span class="rank-change failure-rank">Target rank <b>1 → &gt;10</b></span></div>
+        <div class="case-images"><figure><a href="assets/current-cases/failure-query.jpg"><img src="assets/current-cases/failure-query.jpg" alt="CIRR panda query image for the requested hand-to-mouth pose" loading="lazy"></a><figcaption>Query image</figcaption></figure><figure><a href="assets/current-cases/failure-target.jpg"><img src="assets/current-cases/failure-target.jpg" alt="Annotated panda target for query 8:1053" loading="lazy"></a><figcaption>Annotated target <span>8:7243</span></figcaption></figure><figure class="target-hit"><a href="assets/current-cases/failure-sequential.jpg"><img src="assets/current-cases/failure-sequential.jpg" alt="Actual Sequential top-1 result for query 8:1053, matching the target" loading="lazy"></a><figcaption>Sequential · top 1 <span>Target retrieved at rank 1</span></figcaption></figure><figure><a href="assets/current-cases/failure-p2l.jpg"><img src="assets/current-cases/failure-p2l.jpg" alt="Actual Independent-Suffix P2L top-1 result for query 8:1053; not the annotated target" loading="lazy"></a><figcaption>P2L · top 1 <span>Target absent from top 10</span></figcaption></figure></div>
+        <p class="case-reading"><strong>Reading the result.</strong> P2L returns the correct animal category but misses the requested hand-to-mouth pose. Sequential retrieves the annotated target first. This example illustrates a fine-grained mismatch and shows why aggregate improvement does not imply per-query dominance.</p>
+      </article>
+      <div class="prose"><p class="scope-note">These are selected examples, not a random sample. The same two previously illustrated query IDs were rechecked using the current λ = 0 runs, which reproduce CIRR-7 R@10 of 42.16% and 45.35% over 4,170 queries. “&gt;10” means absent from the saved top-10 list, not a measured rank beyond it. Final rankings do not isolate whether a change arose during prefix search, suffix scoring, or reranking. Images are CIRR/M-BEIR examples and remain subject to the source dataset’s terms. <a href="cases-20260913.json">Case IDs, rank evidence, and source hashes ↗</a></p></div>
+    </section>
     <section id="resources" class="section" aria-labelledby="resources-title">
-      <div class="section-label">04 / Resources</div>
+      <div class="section-label">06 / Resources</div>
       <div class="prose"><h2 id="resources-title">Code and versioned evidence</h2><p>The public repository provides source code, configurations, tests, and lightweight evidence. Model checkpoints, datasets, and large indexes must be supplied separately under their respective licenses.</p>
       <dl class="resource-list"><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact">Source repository ↗</a></dt><dd>Code, environment information, and reproduction instructions.</dd></div><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0">Archived release · v1.0.0 ↗</a></dt><dd>The original code-only release, preserved unchanged. Its bundled results and default configuration predate the current manuscript.</dd></div><div><dt><a href="evidence-20260913.md">Current results · version note ↗</a></dt><dd>Scope and provenance of the results displayed here, and their distinction from the archived release.</dd></div></dl>
       <p class="scope-note">The manuscript and supplementary PDFs are not currently distributed on this page. Updated manuscript results should not be attributed to the unchanged v1.0.0 evidence bundle.</p></div>

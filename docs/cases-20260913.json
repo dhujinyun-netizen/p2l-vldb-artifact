@@ -1,0 +1,98 @@
+{
+  "configuration": "CIRR-7 LOCAL test; matched Sequential vs Independent-Suffix P2L; lambda=0; s=3; B=K=50",
+  "selection": "The two previously illustrated query IDs were retained and rechecked against current saved runs; selected examples, not a random sample.",
+  "query_count": 4170,
+  "recall_at_10_percent": {
+    "sequential": 42.16,
+    "p2l": 45.35
+  },
+  "sources": {
+    "sequential": {
+      "file": "retrieval_results/vldb_matched_lambda0/local/STRUCTNAR/Large/Instruct/structnar_matched_lambda0_sequential_cirr_task7/run_files/mbeir_cirr_task7_single_pool_test_run.txt",
+      "sha256": "ee6750b2b6e341d4739151b241aab76774bd5b5a716f3555d98be65e4c7bd7ee"
+    },
+    "p2l": {
+      "file": "retrieval_results/structnar_tcis/cirr_task7/STRUCTNAR/Large/Instruct/structnar_cirr_task7_p2l_d3_independent_suffix_independent_suffix_canonical_20260911_all16_local_lambda0_cirr_task7_test_s3_b50_k50_w0_full_codebook/run_files/mbeir_cirr_task7_single_pool_test_run.txt",
+      "sha256": "79520312205f917e6f97757b5cdb4bb5c70cbcf5f314f249bacde58deb35e288"
+    }
+  },
+  "dataset_manifest_sha256": {
+    "queries": "94264d97e1473c0a1ef0d9828bdb4c8ed34f1fe824042bfa504b0fd8606ddccd",
+    "candidates": "8a96009b6b7a50ac309bcd4d3df89b91f4fe629dc99883aa879259ac9a2bd2d0"
+  },
+  "interpretation_limit": "Final ranks establish retrieval outcomes, not whether an individual error arose from prefix pruning, suffix scores, or reranking. No new experiment was run.",
+  "cases": [
+    {
+      "case": "recovery",
+      "qid": "8:17",
+      "query_text": "Dog with human instead of another dog.",
+      "target": "8:15709",
+      "rankings": {
+        "sequential": {
+          "target_rank": null,
+          "saved_depth": 10,
+          "top1": "8:10617"
+        },
+        "p2l": {
+          "target_rank": 1,
+          "saved_depth": 10,
+          "top1": "8:15709"
+        }
+      },
+      "images": {
+        "query": {
+          "file": "assets/current-cases/recovery-query.jpg",
+          "sha256": "1ea471d9c918ae225c4e92c787b91b802b282655a714d586e77974f6dbe0c845"
+        },
+        "target": {
+          "file": "assets/current-cases/recovery-target.jpg",
+          "sha256": "0f5ef6ad05c07b55d632093fdd2c665234d603ee09f946fd4cbf77778ff02f43"
+        },
+        "sequential": {
+          "file": "assets/current-cases/recovery-sequential.jpg",
+          "sha256": "ff90aceb54da0a30bfb86d48670c577575b7fb5756374ba34e40edddeb84700b"
+        },
+        "p2l": {
+          "file": "assets/current-cases/recovery-p2l.jpg",
+          "sha256": "0f5ef6ad05c07b55d632093fdd2c665234d603ee09f946fd4cbf77778ff02f43"
+        }
+      }
+    },
+    {
+      "case": "failure",
+      "qid": "8:1053",
+      "query_text": "The target shows one panda with one hand on his mouth.",
+      "target": "8:7243",
+      "rankings": {
+        "sequential": {
+          "target_rank": 1,
+          "saved_depth": 10,
+          "top1": "8:7243"
+        },
+        "p2l": {
+          "target_rank": null,
+          "saved_depth": 10,
+          "top1": "8:3444"
+        }
+      },
+      "images": {
+        "query": {
+          "file": "assets/current-cases/failure-query.jpg",
+          "sha256": "9b08afb61350c725a1b65eaa82a0a39a5af8262594defbcf880aafff844fbdf2"
+        },
+        "target": {
+          "file": "assets/current-cases/failure-target.jpg",
+          "sha256": "8666357a6104b95c3bee6474e030d9d6a084100aacf7c43e8dc19b864bf78ba7"
+        },
+        "sequential": {
+          "file": "assets/current-cases/failure-sequential.jpg",
+          "sha256": "8666357a6104b95c3bee6474e030d9d6a084100aacf7c43e8dc19b864bf78ba7"
+        },
+        "p2l": {
+          "file": "assets/current-cases/failure-p2l.jpg",
+          "sha256": "07d60c1b04bbcfb790f52f7438f97e2f26291b16d557a6598509fb8a6825a83c"
+        }
+      }
+    }
+  ]
+}
