@@ -1,11 +1,26 @@
 # P2L 代码与最小复现包说明
 
+[项目主页](https://dhujinyun-netizen.github.io/p2l-vldb-artifact/) ·
+[English](README.md) · [当前结果与版本边界](docs/evidence-20260913.md)
+
+## 版本说明（2026-09-13）
+
+主页已更新为当前稿件：Independent-Suffix P2L，`s=3`、`B=K=50`、
+`lambda=0`，16 个 LOCAL 任务的 matched macro R@10 为
+**39.36% → 43.64%（+4.28 个百分点）**。
+
+**下文是历史 v1.0.0 的复现说明，不是当前稿件的最终配置。**
+既有 `docs/results/` 与发布包保留旧结果（P2L macro 42.83%）和 PCAA
+配置，不应改名后充当新版证据。本次只更新主页和文档，不修改实验代码、
+原始证据或已发布标签；当前 Independent-Suffix 配置仍需要单独核验并发布
+对应的代码与证据包。
+
 本项目包含 **P2L** 的代码与轻量证据。由于论文尚未正式投稿，公开仓库不包含
-主文、补充材料、图、PDF 或投稿专用 LaTeX 文件。公开包不包含模型权重、
+主文、补充材料 PDF 或投稿专用 LaTeX 文件；主页包含方法框架预览图。公开包不包含模型权重、
 M-BEIR 数据、预提取特征、候选语义 ID 缓存或检索输出；这些大文件需按
 下述逻辑路径另行准备。
 
-## 1. 方法与最终配置
+## 1. 历史方法与 v1.0.0 配置
 
 P2L 面向残差量化 semantic ID 的通用多模态生成式检索。解码器先在
 Candidate Trie 中顺序保留一个短前缀，再通过一次神经前向同时得到所有
@@ -13,7 +28,7 @@ Candidate Trie 中顺序保留一个短前缀，再通过一次神经前向同�
 Prefix-Conditioned Angular Affinity（PCAA）在同一完整候选前沿上加入经码本
 标准化的量化器路径分数，不增加神经预测器前向。
 
-论文锁定配置为：
+历史 v1.0.0 PCAA 配置为（不是当前论文默认配置）：
 
 - semantic-ID 长度 `L=9`；
 - prefix length `s=3`，其中包含 modality-routing code；
@@ -63,7 +78,7 @@ gen_code/.../cand_pool/           候选 semantic-ID 与 Trie 缓存
 
 路径可通过 YAML、`MBEIR_DATA_DIR`、`CKPT_DIR` 和 `CKPT_NAME` 覆盖。
 
-## 4. 最终 CIRR-7 评测
+## 4. 历史 PCAA 配置的 CIRR-7 评测
 
 在项目根目录运行：
 
@@ -100,7 +115,7 @@ UNION 宏平均及 16/16 改善，以及 5.61M exact GPU FlatIP 参考点。它�
 产物和 checkpoint 哈希；准备好这些外部资产后可在完整工作区运行，但它
 不是无权重发布包的默认入口。
 
-## 6. 当前代码能够支持的复现范围
+## 6. 历史发布包记录的复现范围
 
 - 在相同 checkpoint、realized semantic-ID index、Trie、beam 与 reranker
   下，`lambda=0` 的 P2L 在 16/16 个 LOCAL 任务上提高 R@10，宏平均从

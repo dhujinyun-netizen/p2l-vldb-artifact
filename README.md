@@ -1,4 +1,24 @@
-# P2L VLDB Artifact
+# Prefix-to-Leaf (P2L)
+
+**Deferred Selection and Shared Suffix Scoring for Semantic-ID Retrieval**
+
+[Project homepage](https://dhujinyun-netizen.github.io/p2l-vldb-artifact/) ·
+[Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0) ·
+[中文说明](README_CN.md)
+
+## Current manuscript and archived artifact
+
+The homepage now follows the manuscript revision of **13 September 2026**:
+Independent-Suffix P2L, `s=3`, `B=K=50`, `lambda=0`; matched 16-task macro
+R@10 is **39.36% → 43.64% (+4.28 points)**. See the
+[current evidence/version note](docs/evidence-20260913.md) for evaluation scope.
+
+The immutable **v1.0.0** release and the existing `docs/results/` evidence
+predate that revision. Their older 42.83% macro and PCAA configurations must
+not be presented as reproducing the current manuscript. This website update
+does not change experiment code, historical results, or the release tag.
+A separately validated code/evidence release is still needed for the current
+configuration.
 
 This repository contains the source code, configuration files, lightweight
 evidence, and tests for **Prefix-to-Leaf (P2L)**. It is a code-only research
@@ -46,9 +66,10 @@ The package supports two levels of verification.
    bash scripts/shared/setup_official_mbeir_symlink.sh /path/to/M-BEIR
    ```
 
-   The canonical P2L configuration is
+   The historical v1.0.0 PCAA configuration is
    `configs/structnar/final_p2l_d3_rqc_cosine_w20.yaml`, using `s=3`,
    `B=K=50`, standardized PCAA with `lambda=20`, and batch size 8.
+   It is not the current manuscript's default Independent-Suffix configuration.
 
 ## Environment
 
@@ -61,8 +82,9 @@ and synchronization protocol.
 ## Scope
 
 This public repository intentionally excludes the manuscript, supplementary
-material, figures, compiled PDFs, and submission-specific LaTeX sources until
-the work has been formally submitted. It contains no credentials, private
+material, compiled manuscript PDFs, and submission-specific LaTeX sources until
+the work has been formally submitted. The project homepage includes a framework
+preview. The source artifact contains no credentials, private
 filesystem paths, model weights, or copyrighted dataset files.
 
 ## License
