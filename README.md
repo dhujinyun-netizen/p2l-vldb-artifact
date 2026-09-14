@@ -7,97 +7,96 @@
 [Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0) ·
 [中文说明](README_CN.md)
 
-## Current manuscript and artifact snapshot
+## Current manuscript-facing artifact snapshot
 
-The repository follows the manuscript revision of **13 September 2026**:
-Independent-Suffix P2L, `s=3`, `B=K=50`, `lambda=0`; matched 16-task macro
-R@10 is **39.36% → 43.64% (+4.28 points)**. See the
-[current evidence/version note](docs/evidence-20260913.md) for evaluation scope.
+This repository tracks the September 2026 P2L manuscript revision:
+Independent-Suffix P2L with `s=3`, `B=K=50`, and `lambda=0`.
+The matched 16-task macro R@10 is **39.36% -> 43.64% (+4.28 points)**.
+The primary Evaluation-only-12 comparison is **38.81% -> 42.10% (+3.29 points)**.
 
-The current branch contains the Independent-Suffix implementation, canonical
-`lambda=0` configuration, lightweight matched-policy evidence, the manuscript
-Figure 4 candidate-width points, a plotting entry point, and the no-data audit.
-The paper cites an immutable commit permalink for the submission-facing
-artifact snapshot. Historical release tags remain available for provenance and
-must not be relabeled as reproducing later evidence.
+A separate selection-only control now covers all twelve evaluation-only
+configurations. Frozen-Levelwise and Frozen-P2L use the same position-wise
+Independent-Suffix score tables and complete-key scoring rule; only the
+intermediate legal top-B selection schedule changes. Its macro R@10 is
+**38.46% -> 42.10% (+3.64 points; 95% CI [3.42, 3.86])**, with all 12/12
+point estimates positive. See [the 14 September evidence note](docs/evidence-20260914.md).
 
-This repository contains the source code, configuration files, lightweight
-evidence, and tests for **Prefix-to-Leaf (P2L)**. It is a code-only research
-artifact; the manuscript and supplementary paper files are intentionally not
-included before formal submission.
+The repository contains source code, configurations, lightweight result files,
+plot/audit utilities, and tests. It is a source-and-lightweight-evidence
+research artifact; manuscript/supplement LaTeX and compiled paper PDFs remain
+outside the public repository before formal submission.
 
 ## What is included
 
 - `src/`: model and retrieval implementation;
-- `scripts/`: submission-facing training, evaluation, profiling, plotting, and
-  audit scripts;
-- `configs/`: the configurations used by the reported experiments;
-- `docs/results/`: the small CSV/TSV/JSON evidence files used to verify the
-  headline numbers, including `candidate_width_sweep.csv` for manuscript
-  Figure 4;
+- `scripts/`: submission-facing training, evaluation, profiling, plotting, and audit scripts;
+- `configs/`: configurations used by the reported experiments;
+- `docs/results/`: lightweight CSV/TSV/JSON evidence for headline results and execution diagnostics;
 - `tests/`: lightweight package tests;
 - `genius_env.yml` and `LICENSE`.
 
 The archive intentionally excludes model checkpoints, M-BEIR data, extracted
 features, candidate embeddings, semantic-ID caches, and large vector indexes.
-These assets are either subject to their original dataset/model licenses or
-are too large for a source artifact. The README documents the expected paths
-and command-line overrides so that an evaluator can provide them separately.
+These assets are subject to their original licenses and/or are too large for a
+source artifact.
 
 ## Reproducibility levels
 
-The package supports two levels of verification.
+### 1. No-data evidence audits
 
-1. **No-data evidence audit.** This runs without a GPU, dataset, or checkpoint
-   and recomputes the headline values from the bundled lightweight evidence,
-   including the 16 matched task-width points in Figure 4:
+The existing release audit checks the current matched-policy and validation
+records:
 
-   ```bash
-   python scripts/structnar/audit_current_release.py
-   ```
+```bash
+python scripts/structnar/audit_current_release.py
+```
 
-   The Figure 4 visualization can be recreated from its lightweight CSV with:
+The new Frozen-12 selection-control evidence can be checked without a GPU,
+dataset, or checkpoint:
 
-   ```bash
-   python scripts/structnar/plot_candidate_width_sweep.py
-   ```
+```bash
+python scripts/structnar/audit_fixed_score_eval12.py
+```
 
-2. **Full experiment reproduction.** This requires the official M-BEIR
-   release, the frozen CLIP/RQ50 assets, the P2L checkpoint, and the candidate
-   semantic-ID/Trie artifacts. Set `MBEIR_DATA_DIR`, `CKPT_DIR`, and any
-   experiment-specific paths before running the scripts under
-   `scripts/structnar/`.
+This audit recomputes the task macro and verifies the query count, positive-task
+count, task confidence-interval count, APF, and key timing/frontier summary
+values from the bundled CSV/JSON files.
 
-   The current reference configuration is
-   `configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml`. After
-   downloading the official M-BEIR release, link it into the artifact
-   checkout with:
+### 2. Full experiment reproduction
 
-   ```bash
-   bash scripts/shared/setup_official_mbeir_symlink.sh /path/to/M-BEIR
-   ```
+Full inference requires the official M-BEIR release, frozen CLIP/RQ50 assets,
+the evaluated P2L checkpoint, and the realized candidate semantic-ID/Trie
+artifacts. Set `MBEIR_DATA_DIR`, `CKPT_DIR`, and experiment-specific paths
+before running the scripts under `scripts/structnar/`.
 
-   Historical release boundaries are explicit: v1.0.0 is the older PCAA
-   configuration (`lambda=20`), while v2.0.0 matches the Independent-Suffix
-   `lambda=0` default but predates the candidate-width Figure 4 evidence.
-   Neither tag should be presented as the final submission snapshot; use the
-   immutable commit permalink cited by the paper.
+The reference configuration is:
+
+`configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml`
+
+After downloading the official M-BEIR release, link it into the checkout with:
+
+```bash
+bash scripts/shared/setup_official_mbeir_symlink.sh /path/to/M-BEIR
+```
+
+Historical release boundaries remain explicit: `v1.0.0` is the older PCAA
+configuration (`lambda=20`). Historical tags must not be relabeled as
+reproducing later evidence; the paper should cite an immutable commit permalink
+for the submission-facing snapshot.
 
 ## Environment
 
 The recorded environment is described by `genius_env.yml` (Python 3.10,
-PyTorch, FAISS, Transformers, CLIP, and the other required packages). Exact
-latencies depend on GPU, driver, CUDA, and storage state. Runtime comparisons
-must use the same checkpoint, candidate index, batch size, precision mode,
-and synchronization protocol.
+PyTorch, FAISS, Transformers, CLIP, and related packages). Exact latencies
+depend on GPU, driver, CUDA, and storage state. Runtime comparisons must use
+the same checkpoint, candidate index, batch size, precision mode, and
+synchronization protocol.
 
 ## Scope
 
-This public repository intentionally excludes the manuscript, supplementary
-material, compiled manuscript PDFs, and submission-specific LaTeX sources until
-the work has been formally submitted. The project homepage includes a framework
-preview. The source artifact contains no credentials, private
-filesystem paths, model weights, or copyrighted dataset files.
+The public repository intentionally excludes the manuscript, supplementary
+material, compiled manuscript PDFs, review material, private filesystem paths,
+credentials, model weights, copyrighted dataset files, and large indexes.
 
 ## License
 
