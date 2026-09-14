@@ -6,6 +6,55 @@ import torch.nn.functional as F
 import numpy as np
 
 
+def deterministic_topk_by_index(
+    scores: torch.Tensor,
+    indices: torch.Tensor,
+    k: int,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Return lexicographic top-k under ``(-score, candidate_index)``.
+
+    ``torch.topk`` does not define a deterministic ordering for equal values.
+    P2L streaming repeatedly merges partial top-k sets, so an unstable tie at
+    the boundary can make the selected identifier depend on chunk size even
+    when every candidate score is identical to full materialization.  This
+    helper makes the secondary key explicit: lower global candidate-row index
+    wins an exact score tie.
+
+    ``scores`` and ``indices`` may be 1-D or 2-D and must have the same shape.
+    The returned tensors preserve that dimensionality and are ordered exactly
+    as a full stable sort by descending score and ascending candidate index.
+    """
+    if scores.shape != indices.shape:
+        raise ValueError("scores and indices must have identical shapes")
+    if scores.dim() not in (1, 2):
+        raise ValueError("scores and indices must be 1-D or 2-D")
+    if scores.numel() == 0:
+        raise ValueError("scores must contain at least one candidate")
+
+    squeeze = scores.dim() == 1
+    if squeeze:
+        scores = scores.unsqueeze(0)
+        indices = indices.unsqueeze(0)
+
+    keep = min(max(1, int(k)), int(scores.size(1)))
+
+    # First establish the secondary order (candidate index ascending).  The
+    # subsequent stable score sort preserves this order inside exact-score
+    # ties, giving the lexicographic order (-score, candidate_index).
+    by_index = torch.argsort(indices, dim=1, descending=False, stable=True)
+    scores_by_index = scores.gather(1, by_index)
+    indices_by_index = indices.gather(1, by_index)
+    by_score = torch.argsort(
+        scores_by_index, dim=1, descending=True, stable=True
+    )[:, :keep]
+    top_scores = scores_by_index.gather(1, by_score)
+    top_indices = indices_by_index.gather(1, by_score)
+
+    if squeeze:
+        return top_scores.squeeze(0), top_indices.squeeze(0)
+    return top_scores, top_indices
+
+
 def sample_prefix_neighbor_codes(
     sorted_legal_codes: np.ndarray,
     target_codes: np.ndarray,
@@ -133,8 +182,9 @@ def topk_complete_id_scores(
     """Return top-k candidate row indices and summed position log-probabilities.
 
     ``log_probs`` is ``[B,L,V]`` and candidates are legal complete IDs with
-    shape ``[N,L]``. Candidate rows are streamed in chunks, so memory does not
-    grow as ``B*N*L*V``.
+    shape ``[N,L]``. Candidate rows are streamed in chunks.  Selection uses the
+    deterministic lexicographic rule ``(-score, global_candidate_row)`` so a
+    chunked run is identical to full materialization even at exact-score ties.
     """
     if log_probs.dim() != 3 or candidate_token_ids.dim() != 2:
         raise ValueError("log_probs must be [B,L,V] and candidates must be [N,L]")
@@ -166,8 +216,8 @@ def topk_complete_id_scores(
         indices = indices.unsqueeze(0).expand(batch, -1)
         merged_scores = torch.cat((best_scores, scores), dim=1)
         merged_indices = torch.cat((best_indices, indices), dim=1)
-        top_scores, positions = torch.topk(merged_scores, k=min(keep, merged_scores.size(1)), dim=1)
-        best_scores = top_scores
-        best_indices = merged_indices.gather(1, positions)
+        best_scores, best_indices = deterministic_topk_by_index(
+            merged_scores, merged_indices, keep
+        )
 
     return best_indices, best_scores
