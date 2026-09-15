@@ -4,43 +4,49 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fbfaf7">
-  <meta name="description" content="Prefix-to-Leaf (P2L): deferred selection and shared suffix scoring for semantic-ID retrieval. Method, experimental results, and versioned research code.">
-  <title>Prefix-to-Leaf: Deferred Selection and Shared Suffix Scoring for Semantic-ID Retrieval</title>
+  <meta name="description" content="Prefix-to-Leaf (P2L): deferred complete-key selection over a semantic-ID Trie, with shared suffix scoring for efficient generative retrieval.">
+  <title>Prefix-to-Leaf: Deferred Complete-Key Selection for Semantic-ID Retrieval</title>
   <link rel="canonical" href="https://dhujinyun-netizen.github.io/p2l-vldb-artifact/">
-  <link rel="stylesheet" href="academic.css?v=20260913-interactive">
-  <script src="method-demo.js?v=20260913" defer></script>
+  <link rel="stylesheet" href="academic.css?v=20260916-final">
+  <script src="method-demo.js?v=20260916" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="masthead">
     <a class="wordmark" href="#top">P2L <span>Research project</span></a>
-    <nav aria-label="Main navigation"><a href="#overview">Overview</a><a href="#method">Method</a><a href="#execution">Animation</a><a href="#results">Results</a><a href="#cases">Cases</a><a href="#resources">Resources</a></nav>
+    <nav aria-label="Main navigation"><a href="#overview">Overview</a><a href="#method">Method</a><a href="#positioning">Positioning</a><a href="#execution">Animation</a><a href="#results">Results</a><a href="#mechanism">Mechanism</a><a href="#resources">Resources</a></nav>
   </header>
   <main id="content">
     <section id="top" class="hero" aria-labelledby="paper-title">
       <p class="eyebrow">Multimodal retrieval · Structured search</p>
-      <h1 id="paper-title"><span>Prefix-to-Leaf</span>Deferred Selection and Shared Suffix Scoring<br class="desktop-break"> for Semantic-ID Retrieval</h1>
+      <h1 id="paper-title"><span>Prefix-to-Leaf</span>Deferred Complete-Key Selection<br class="desktop-break"> for Semantic-ID Retrieval</h1>
       <p class="authors"><span>Jian-Xin Ren<sup>1</sup></span><span>Ming-Bo Zhao<sup>1</sup></span><span>Zhao Zhang<sup>2</sup></span><span>Jicong Fan<sup>3</sup></span></p>
       <div class="affiliations"><span><sup>1</sup> Donghua University</span><span><sup>2</sup> Hefei University of Technology</span><span><sup>3</sup> The Chinese University of Hong Kong, Shenzhen</span></div>
-      <div class="resource-links"><a class="primary-link" href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact">Code repository ↗</a><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0">Versioned artifact ↗</a><a href="#results">Experimental results ↓</a></div>
-      <p class="publication-note">Research manuscript · Updated 13 September 2026</p>
+      <div class="resource-links"><a class="primary-link" href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact">Code repository ↗</a><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/tree/c5bf1eda5c86176b5f1797701e63c1f7dcaa8f4f">Pinned code snapshot ↗</a><a href="evidence-20260916.md">Current evidence note ↗</a><a href="#results">Experimental results ↓</a></div>
+      <p class="publication-note">Research manuscript · Final private package dated 16 September 2026</p>
     </section>
     <section id="overview" class="section" aria-labelledby="overview-title">
       <div class="section-label">01 / Overview</div>
       <div class="prose"><h2 id="overview-title">When should a partial identifier be pruned?</h2>
       <p>Semantic-ID retrieval generates structured keys constrained by a Trie index. Sequential beam search prunes partial keys after each position, before evidence from the remaining codes is available. A relevant item can therefore be discarded before its complete identifier is scored.</p>
-      <p>Prefix-to-Leaf (P2L) retains a short prefix, enumerates its stored descendants, and ranks complete identifiers using shared suffix scores. The default implementation conditions each unresolved position on the query and retained prefix, without cross-position suffix attention. It changes both suffix conditioning and the point at which candidates are selected, while reusing the frozen checkpoint and candidate index.</p>
-      <p class="finding">Across 16 M-BEIR configurations, matched macro R@10 increases from <strong>39.36% to 43.64%</strong>. Repeated batch-1 measurements on four tasks show <strong>41.6–42.3% lower identifier-generation latency</strong>.</p></div>
+      <p>Prefix-to-Leaf (P2L) retains a short prefix, enumerates its stored descendants, and ranks complete identifiers using shared suffix scores. The default realization conditions each unresolved position on the query and retained prefix, without cross-position suffix attention. It changes the post-localization selection schedule while reusing the frozen checkpoint and candidate index.</p>
+      <p class="finding">On the twelve configurations excluded from policy selection, macro R@10 increases from <strong>38.81%</strong> to <strong>42.10%</strong> (+3.29 points; 95% CI [3.07, 3.52]). The all-16 value, <strong>39.36% → 43.64%</strong>, is reported only as a descriptive aggregate.</p></div>
     </section>
     <section id="method" class="section" aria-labelledby="method-title">
       <div class="section-label">02 / Method</div>
       <div class="prose"><h2 id="method-title">Search the prefix. Score the complete leaves.</h2><p>The semantic-ID index separates routing from candidate refinement. P2L uses this structure to share neural suffix prediction across the descendants of each retained prefix.</p></div>
       <figure class="framework"><a href="assets/framework-20260913.png" aria-label="Open the full-size P2L framework"><img src="assets/framework-20260913.png" alt="P2L framework: offline semantic-ID index construction; online prefix search, stored-descendant enumeration, independent suffix scoring and global top-K selection; reused exact-ID lookup and embedding reranking." loading="lazy"></a><figcaption><strong>Method overview.</strong> Updated from the authors’ hierarchy-corrected diagram. A shared score matrix is gathered along stored suffixes; complete-ID scores determine top-K selection within the retained frontier. Retrieval thumbnails illustrate the pipeline, not measured rankings. <a href="assets/framework-20260913.png">View full size ↗</a></figcaption></figure>
       <ol class="method-steps"><li><h3>Retain a short prefix</h3><p>Trie-constrained search localizes the query to a set of prefixes. The default switch depth is <i>s</i> = 3, including the modality-routing code.</p></li><li><h3>Share suffix prediction</h3><p>Enumerate stored descendants and score unresolved positions in one suffix round. Each position attends to the query and prefix, independently of other suffix positions.</p></li><li><h3>Select complete identifiers</h3><p>Aggregate prefix and suffix scores, then select the top 50 complete IDs across the retained frontier. Exact-ID expansion and embedding reranking are reused.</p></li></ol>
-      <div class="prose"><p class="scope-note">Selection is exact within the enumerated frontier, not over the full index. P2L cannot recover a leaf whose prefix was already pruned. The default uses <i>B</i> = <i>K</i> = 50 and λ = 0; PCAA is not part of this configuration.</p></div>
+      <div class="prose"><p class="scope-note">Selection is exact within the enumerated frontier, not over the full index. P2L cannot recover a leaf whose prefix was already pruned. The current default uses <i>B</i> = <i>K</i> = 50 and λ = 0.</p></div>
+    </section>
+    <section id="positioning" class="section" aria-labelledby="positioning-title">
+      <div class="section-label">03 / Positioning</div>
+      <div class="prose"><h2 id="positioning-title">A different answer to early commitment</h2>
+      <p>Recent methods address early identifier errors by improving prefix evidence or relaxing uncertain expansion. WIDE, for example, emits wildcard identifiers at uncertain suffix positions and reranks the compatible candidates with hybrid evidence.</p>
+      <p>P2L makes a different execution choice: it fixes a prefix-localization boundary, enumerates the stored complete descendants below that boundary, and postpones partial-key selection until complete-key scores are available. WIDE and P2L are therefore complementary rather than interchangeable baselines; this page summarizes the conceptual distinction and does not claim a matched WIDE reimplementation.</p></div>
     </section>
     <section id="execution" class="section" aria-labelledby="execution-title">
-      <div class="section-label">03 / Interactive explanation</div>
+      <div class="section-label">04 / Interactive explanation</div>
       <div class="prose"><h2 id="execution-title">From prefix decisions to complete-ID selection</h2><p>Follow one query through prefix search, descendant enumeration, shared suffix scoring, and final selection. The animation illustrates the default Independent-Suffix policy; it is not a recorded model run.</p></div>
       <div class="execution-demo" data-stage="3">
         <div class="demo-toolbar"><span class="demo-label">P2L · λ = 0 · <i>s</i> = 3</span><div class="demo-controls" hidden><button type="button" id="demo-play" aria-pressed="false">Play animation</button><button type="button" id="demo-reset">Reset</button><button type="button" id="demo-next">Next step →</button></div></div>
@@ -60,28 +66,30 @@
       </div>
     </section>
     <section id="results" class="section" aria-labelledby="results-title">
-      <div class="section-label">04 / Evaluation</div>
+      <div class="section-label">05 / Evaluation</div>
       <div class="prose"><h2 id="results-title">Effectiveness, selection, and execution cost</h2><p>The following results describe the current manuscript’s Independent-Suffix configuration. The matched comparison holds the checkpoint, realized candidate index, beam budget, and reranker fixed.</p></div>
       <div class="table-wrap" role="region" aria-label="Main experimental findings" tabindex="0"><table><caption>Current experimental evidence</caption><thead><tr><th scope="col">Question</th><th scope="col">Evaluation</th><th scope="col">Finding</th></tr></thead><tbody>
-        <tr><th scope="row">Does retrieval improve?</th><td>16 LOCAL tasks · matched decoder comparison</td><td>Macro R@10: 39.36% → <strong>43.64%</strong><small>+4.28 percentage points; 95% CI [4.03, 4.53]</small></td></tr>
-        <tr><th scope="row">Does deferred selection help?</th><td>4 tasks · frozen Independent-Suffix scoring</td><td>Macro R@10: 40.09% → <strong>48.24%</strong><small>Frozen level-wise selection → frozen P2L selection</small></td></tr>
+        <tr><th scope="row">Does the frozen policy generalize?</th><td>12 evaluation-only configurations · matched decoder comparison</td><td>Macro R@10: 38.81% → <strong>42.10%</strong><small>+3.29 percentage points; 95% CI [3.07, 3.52]</small></td></tr>
+        <tr><th scope="row">Does deferred selection help?</th><td>12 evaluation-only configurations · fixed Independent-Suffix score rule</td><td>Macro R@10: 38.46% → <strong>42.10%</strong><small>Frozen level-wise selection → frozen P2L selection; +3.64 points</small></td></tr>
+        <tr><th scope="row">What is the benchmark context?</th><td>16 LOCAL configurations · designated R@5/R@10 cutoffs</td><td>Macro: 35.46% → <strong>39.20%</strong><small>+3.73 points; cross-paper context is not a matched reproduction</small></td></tr>
         <tr><th scope="row">Is execution cheaper?</th><td>4 tasks · batch 1 · RTX 3090 · 5 repeats</td><td><strong>41.6–42.3%</strong> lower generation latency<small>39.4–40.0% lower decode-to-rerank latency</small></td></tr>
+        <tr><th scope="row">Can the frontier be streamed exactly?</th><td>12 evaluation-only configurations · 3 chunk sizes</td><td><strong>Same ordered keys, scores, and R@10</strong><small>Chunk sizes 4,096 / 16,384 / 65,536; current Python path ≈11% slower</small></td></tr>
         <tr><th scope="row">Does it extend to a larger index?</th><td>5,609,079-item UNION pool · 2 tasks</td><td>R@10 gains: <strong>+3.19 / +9.69 points</strong><small>CIRR-7 / EDIS-2; batch-8 generation latency −48.7% / −46.1%</small></td></tr>
       </tbody></table></div>
-      <div class="prose"><p class="scope-note">The frozen-scoring comparison isolates selection under that scorer; its +8.15-point gain is not an additive decomposition of the +4.28-point matched result. Generation starts from cached query embeddings. Decode-to-rerank adds lookup and reranking costs; neither is raw-query service latency.</p><h3>Task-level results</h3><p>All 16 point estimates improve. Fourteen paired-query confidence intervals exclude zero. The intervals are conditional on the selected implementation; they do not account for implementation selection, which was informed in part by test results.</p></div>
+      <div class="prose"><p class="scope-note">The evaluation-only result is the primary effectiveness estimate; the all-16 macro remains descriptive. The fixed-score comparison isolates selection under the same scoring rule and is not an additive decomposition of the default gain. Generation starts from cached query embeddings. Decode-to-rerank adds lookup and reranking costs; neither is raw-query service latency.</p><h3>Task-level results</h3><p>All 16 point estimates improve; ten of the twelve evaluation-only task intervals exclude zero. Intervals are conditional on the fixed implementation and query set.</p></div>
       <details class="task-details"><summary>Inspect all 16 matched comparisons <span>R@10 (%) and paired-query 95% CI</span></summary>
       <div class="table-wrap" role="region" aria-label="All 16 matched task results" tabindex="0"><table class="numeric"><caption>LOCAL candidate pools · λ = 0 · Independent-Suffix P2L</caption><thead><tr><th scope="col">Task</th><th scope="col">Sequential</th><th scope="col">P2L</th><th scope="col">Δ (points)</th><th scope="col">95% CI of Δ</th></tr></thead><tbody>
-        <tr><th scope="row">VisualNews-0</th><td>22.36</td><td>29.22</td><td>+6.86</td><td>[6.35, 7.39]</td></tr>
-        <tr><th scope="row">MSCOCO-0</th><td>82.65</td><td>83.41</td><td>+0.76</td><td>[0.60, 0.91]</td></tr>
+        <tr><th scope="row">VisualNews-0</th><td>22.36</td><td>29.22</td><td>+6.87</td><td>[6.35, 7.39]</td></tr>
+        <tr><th scope="row">MSCOCO-0</th><td>82.65</td><td>83.41</td><td>+0.75</td><td>[0.60, 0.91]</td></tr>
         <tr><th scope="row">Fashion200K-0</th><td>13.79</td><td>14.72</td><td>+0.93</td><td>[−0.47, 2.33]</td></tr>
         <tr><th scope="row">WebQA-1</th><td>32.26</td><td>46.60</td><td>+14.34</td><td>[12.34, 16.29]</td></tr>
         <tr><th scope="row">EDIS-2</th><td>40.98</td><td>50.73</td><td>+9.75</td><td>[8.15, 11.39]</td></tr>
         <tr><th scope="row">WebQA-2</th><td>56.15</td><td>65.03</td><td>+8.88</td><td>[7.21, 10.55]</td></tr>
-        <tr><th scope="row">VisualNews-3</th><td>23.29</td><td>30.68</td><td>+7.39</td><td>[6.87, 7.91]</td></tr>
+        <tr><th scope="row">VisualNews-3</th><td>23.29</td><td>30.68</td><td>+7.38</td><td>[6.87, 7.91]</td></tr>
         <tr><th scope="row">MSCOCO-3</th><td>93.40</td><td>94.22</td><td>+0.82</td><td>[0.36, 1.30]</td></tr>
-        <tr><th scope="row">Fashion200K-3</th><td>15.52</td><td>16.12</td><td>+0.60</td><td>[−0.16, 1.35]</td></tr>
+        <tr><th scope="row">Fashion200K-3</th><td>15.52</td><td>16.12</td><td>+0.59</td><td>[−0.16, 1.35]</td></tr>
         <tr><th scope="row">NIGHTS-4</th><td>48.58</td><td>50.28</td><td>+1.70</td><td>[0.66, 2.78]</td></tr>
-        <tr><th scope="row">OVEN-6</th><td>40.73</td><td>43.50</td><td>+2.77</td><td>[2.55, 2.98]</td></tr>
+        <tr><th scope="row">OVEN-6</th><td>40.73</td><td>43.50</td><td>+2.76</td><td>[2.55, 2.98]</td></tr>
         <tr><th scope="row">InfoSeek-6</th><td>21.70</td><td>23.81</td><td>+2.11</td><td>[1.64, 2.56]</td></tr>
         <tr><th scope="row">FashionIQ-7</th><td>15.16</td><td>17.39</td><td>+2.23</td><td>[1.48, 3.00]</td></tr>
         <tr><th scope="row">CIRR-7</th><td>42.16</td><td>45.35</td><td>+3.19</td><td>[2.21, 4.20]</td></tr>
@@ -89,9 +97,14 @@
         <tr><th scope="row">InfoSeek-8</th><td>35.03</td><td>36.69</td><td>+1.66</td><td>[1.27, 2.05]</td></tr>
       </tbody><tfoot><tr><th scope="row">Task macro</th><td>39.36</td><td>43.64</td><td>+4.28</td><td>[4.03, 4.53]</td></tr></tfoot></table></div></details>
     </section>
+    <section id="mechanism" class="section" aria-labelledby="mechanism-title">
+      <div class="section-label">06 / Qualitative mechanism</div>
+      <div class="prose"><h2 id="mechanism-title">The same prefix frontier, different commitment point</h2><p>These four fixed cases connect the final item ranks to the semantic-ID search trace. In the first three, the relevant prefix survives at <i>s</i> = 3, is later pruned by Sequential, and remains available to P2L for complete-key scoring. Fashion200K-0 is a boundary case: both policies retain the relevant path, while P2L changes its final ordering.</p></div>
+      <figure class="framework mechanism-figure"><a href="assets/qualitative_mechanism_compact.png" aria-label="Open the full-size qualitative semantic-ID mechanism figure"><img src="assets/qualitative_mechanism_compact.png" alt="Four qualitative M-BEIR cases showing query, Sequential top-three results, P2L top-three results, and semantic-ID trace strips with prefix ranks and final rank changes." loading="lazy"></a><figcaption><strong>Semantic-ID trajectories.</strong> Green marks identify the relevant result. The trace strips report the shared depth-three prefix rank, Sequential's first pruning event, P2L's complete-key rank and the final item-rank change. These examples explain workload heterogeneity and are not additional effectiveness estimates. <a href="assets/qualitative_mechanism_compact.png">View full size ↗</a></figcaption></figure>
+    </section>
     <section id="cases" class="section" aria-labelledby="cases-title">
-      <div class="section-label">05 / Case analysis</div>
-      <div class="prose"><h2 id="cases-title">A recovered target—and a missed one</h2><p>Two CIRR-7 queries show both outcomes under the current matched Sequential and Independent-Suffix P2L configurations (λ = 0). Each comparison displays the query, annotated target, and the actual top-ranked item returned by each method.</p></div>
+      <div class="section-label">07 / Case analysis</div>
+      <div class="prose"><h2 id="cases-title">Additional CIRR examples</h2><p>Two previously illustrated CIRR-7 queries show both outcomes under the current matched Sequential and Independent-Suffix P2L configurations (λ = 0). Each comparison displays the query, annotated target, and the actual top-ranked item returned by each method.</p></div>
       <article class="retrieval-case" aria-labelledby="recovery-title"><div class="case-heading"><div><span class="case-label">Case A / Recovery · query 8:17</span><h3 id="recovery-title">“Dog with human instead of another dog.”</h3></div><span class="rank-change">Target rank <b>&gt;10 → 1</b></span></div>
         <div class="case-images"><figure><a href="assets/current-cases/recovery-query.jpg"><img src="assets/current-cases/recovery-query.jpg" alt="CIRR query image for the instruction to replace another dog with a human" loading="lazy"></a><figcaption>Query image</figcaption></figure><figure><a href="assets/current-cases/recovery-target.jpg"><img src="assets/current-cases/recovery-target.jpg" alt="Annotated target showing a dog with a person" loading="lazy"></a><figcaption>Annotated target <span>8:15709</span></figcaption></figure><figure><a href="assets/current-cases/recovery-sequential.jpg"><img src="assets/current-cases/recovery-sequential.jpg" alt="Actual Sequential top-1 result for query 8:17; not the annotated target" loading="lazy"></a><figcaption>Sequential · top 1 <span>Target absent from top 10</span></figcaption></figure><figure class="target-hit"><a href="assets/current-cases/recovery-p2l.jpg"><img src="assets/current-cases/recovery-p2l.jpg" alt="Actual Independent-Suffix P2L top-1 result for query 8:17, matching the annotated target" loading="lazy"></a><figcaption>P2L · top 1 <span>Target retrieved at rank 1</span></figcaption></figure></div>
         <p class="case-reading"><strong>Reading the result.</strong> P2L places the annotated target first, while Sequential does not return it in the saved top 10. Both top-1 images contain a dog and a person: the distinction is recovery of the annotated target, not simply recognition of the requested human presence.</p>
@@ -103,9 +116,9 @@
       <div class="prose"><p class="scope-note">These are selected examples, not a random sample. The same two previously illustrated query IDs were rechecked using the current λ = 0 runs, which reproduce CIRR-7 R@10 of 42.16% and 45.35% over 4,170 queries. “&gt;10” means absent from the saved top-10 list, not a measured rank beyond it. Final rankings do not isolate whether a change arose during prefix search, suffix scoring, or reranking. Images are CIRR/M-BEIR examples and remain subject to the source dataset’s terms. <a href="cases-20260913.json">Case IDs, rank evidence, and source hashes ↗</a></p></div>
     </section>
     <section id="resources" class="section" aria-labelledby="resources-title">
-      <div class="section-label">06 / Resources</div>
+      <div class="section-label">08 / Resources</div>
       <div class="prose"><h2 id="resources-title">Code and versioned evidence</h2><p>The public repository provides source code, configurations, tests, and lightweight evidence. Model checkpoints, datasets, and large indexes must be supplied separately under their respective licenses.</p>
-      <dl class="resource-list"><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact">Source repository ↗</a></dt><dd>Code, environment information, and reproduction instructions.</dd></div><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0">Archived release · v1.0.0 ↗</a></dt><dd>The original code-only release, preserved unchanged. Its bundled results and default configuration predate the current manuscript.</dd></div><div><dt><a href="evidence-20260913.md">Current results · version note ↗</a></dt><dd>Scope and provenance of the results displayed here, and their distinction from the archived release.</dd></div></dl>
+      <dl class="resource-list"><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact">Source repository ↗</a></dt><dd>Code, environment information, and reproduction instructions.</dd></div><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/tree/c5bf1eda5c86176b5f1797701e63c1f7dcaa8f4f">Pinned code snapshot ↗</a></dt><dd>Immutable code-only snapshot used as the public artifact reference; it does not contain the current private manuscript package.</dd></div><div><dt><a href="https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0">Archived release · v1.0.0 ↗</a></dt><dd>The original code-only release, preserved unchanged. Its bundled results and default configuration predate the current manuscript.</dd></div><div><dt><a href="evidence-20260916.md">Current results · 16 September note ↗</a></dt><dd>Scope, provenance, WIDE positioning, and version boundary for the evidence displayed here.</dd></div></dl>
       <p class="scope-note">The manuscript and supplementary PDFs are not currently distributed on this page. Updated manuscript results should not be attributed to the unchanged v1.0.0 evidence bundle.</p></div>
     </section>
   </main>
