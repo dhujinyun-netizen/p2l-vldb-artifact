@@ -21,6 +21,14 @@ intermediate legal top-B selection schedule changes. Its macro R@10 is
 **38.46% -> 42.10% (+3.64 points; 95% CI [3.42, 3.86])**, with all 12/12
 point estimates positive. See [the 14 September evidence note](docs/evidence-20260914.md).
 
+The final tie-fixed Streaming audit also covers all twelve evaluation-only
+tasks at chunk sizes 4,096, 16,384, and 65,536. All 36 Streaming cells match
+their Full reference exactly in ordered top-K keys, score arrays, and R@10,
+while the temporary candidate buffer never exceeds the configured chunk size.
+The current Python Streaming path is about 11% slower in aggregate, so this is
+a bounded-memory correctness result rather than a speedup claim. See
+[the 15 September streaming audit](docs/streaming-audit-20260915.md).
+
 The repository contains source code, configurations, lightweight result files,
 plot/audit utilities, and tests. It is a source-and-lightweight-evidence
 research artifact; manuscript/supplement LaTeX and compiled paper PDFs remain
@@ -42,7 +50,7 @@ source artifact.
 
 ## Reproducibility levels
 
-### 1. No-data evidence audits
+### 1. Evidence and exactness audits
 
 The existing release audit checks the current matched-policy and validation
 records:
@@ -51,7 +59,7 @@ records:
 python scripts/structnar/audit_current_release.py
 ```
 
-The new Frozen-12 selection-control evidence can be checked without a GPU,
+The Frozen-12 selection-control evidence can be checked without a GPU,
 dataset, or checkpoint:
 
 ```bash
@@ -61,6 +69,18 @@ python scripts/structnar/audit_fixed_score_eval12.py
 This audit recomputes the task macro and verifies the query count, positive-task
 count, task confidence-interval count, APF, and key timing/frontier summary
 values from the bundled CSV/JSON files.
+
+Given a tie-fixed Streaming campaign JSON, exact Full-versus-Streaming identity
+is checked with:
+
+```bash
+python scripts/structnar/audit_streaming_exact_eval12.py <campaign.json>
+```
+
+The checker fails on any R@10 mismatch, selected-set mismatch, ordered-key or
+score-array difference, cross-chunk inconsistency, or chunk-buffer violation.
+The lightweight aggregate summary is stored in
+`docs/results/streaming_tie_fixed_summary_20260915.csv`.
 
 ### 2. Full experiment reproduction
 
