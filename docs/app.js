@@ -63,7 +63,7 @@
       image: 'assets/case_recovery.png',
       kicker: 'case A · recovery',
       title: 'Complete-leaf evidence recovers the relevant item.',
-      text: 'The query asks for a dog with a human instead of another dog. Sequential+PCAA ranks the relevant item below the cutoff, while P2L+PCAA returns it at rank 1.',
+      text: 'The query asks for a dog with a human instead of another dog. Sequential ranks the relevant item below the cutoff, while Independent-Suffix P2L returns it at rank 1.',
       seq: 'GT rank >10',
       p2l: 'GT rank 1'
     },
@@ -87,7 +87,7 @@
     p2lRank.textContent = state.p2l;
     const caseImage = document.querySelector('#case-image');
     caseImage.src = state.image;
-    caseImage.alt = `${state.kicker}: query, ground truth, Sequential plus PCAA result, and P2L plus PCAA result`;
+    caseImage.alt = `${state.kicker}: query, ground truth, Sequential result, and Independent-Suffix P2L result`;
   }));
 
   const walkSteps = [...document.querySelectorAll('.walk-step')];
