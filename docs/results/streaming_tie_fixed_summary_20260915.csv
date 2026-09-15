@@ -1,0 +1,5 @@
+path,chunk_size,task_cells,ordered_key_identity,score_identity,recall_mismatches,generation_seconds,overhead_percent,peak_buffer_bound
+Full,,12,reference,reference,,4704.99,,full_frontier
+Streaming,4096,12,12/12,12/12,0,5247.18,11.52,4096
+Streaming,16384,12,12/12,12/12,0,5215.72,10.86,16384
+Streaming,65536,12,12/12,12/12,0,5224.71,11.05,65536
