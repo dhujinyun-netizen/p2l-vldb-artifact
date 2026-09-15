@@ -1,106 +1,53 @@
 # Prefix-to-Leaf (P2L)
 
-**Deferred Selection and Shared Suffix Scoring for Semantic-ID Retrieval**
+**Deferred Complete-Key Selection for Semantic-ID Retrieval**
 
 [Project homepage](https://dhujinyun-netizen.github.io/p2l-vldb-artifact/) ·
 [Current code](configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml) ·
-[Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0) ·
-[中文说明](README_CN.md)
+[Pinned code snapshot](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/tree/c5bf1eda5c86176b5f1797701e63c1f7dcaa8f4f) ·
+[Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0)
 
-## Current manuscript and artifact snapshot
+## Current manuscript and evidence
 
-The repository follows the manuscript revision of **13 September 2026**:
-Independent-Suffix P2L, `s=3`, `B=K=50`, `lambda=0`; matched 16-task macro
-R@10 is **39.36% → 43.64% (+4.28 points)**. See the
-[current evidence/version note](docs/evidence-20260913.md) for evaluation scope.
+The current private manuscript package is dated 16 September 2026. The evaluated
+policy is Independent-Suffix P2L with `s=3`, `B=K=50`, `lambda=0`, and the
+frozen epoch-99 checkpoint. On the twelve configurations excluded from policy
+selection, macro R@10 increases from **38.81% to 42.10% (+3.29 points)**.
+The all-16 value, **39.36% to 43.64%**, is descriptive rather than the primary
+generalization estimate. See the [current evidence note](docs/evidence-20260916.md).
 
-The current branch contains the Independent-Suffix implementation, canonical
-`lambda=0` configuration, lightweight matched-policy evidence, the manuscript
-Figure 4 candidate-width points, a plotting entry point, and the no-data audit.
-The paper cites an immutable commit permalink for the submission-facing
-artifact snapshot. Historical release tags remain available for provenance and
-must not be relabeled as reproducing later evidence.
+P2L retains a short Trie prefix, enumerates its stored complete descendants,
+shares suffix score computation, and performs global complete-key selection.
+WIDE addresses a related early-commit risk with uncertainty-triggered wildcard
+expansion; P2L instead fixes a localization boundary and changes when partial-key
+selection terminates. The homepage records this distinction without claiming a
+matched WIDE reimplementation.
 
-This repository contains the source code, configuration files, lightweight
-evidence, and tests for **Prefix-to-Leaf (P2L)**. It is a code-only research
-artifact; the manuscript and supplementary paper files are intentionally not
-included before formal submission.
+This public repository is code-only. The manuscript, supplementary paper,
+checkpoint, M-BEIR data, extracted features, candidate embeddings, semantic-ID
+caches, and large indexes are intentionally not included.
 
-## What is included
+## Included
 
-- `src/`: model and retrieval implementation;
-- `scripts/`: submission-facing training, evaluation, profiling, plotting, and
-  audit scripts;
-- `configs/`: the configurations used by the reported experiments;
-- `docs/results/`: the small CSV/TSV/JSON evidence files used to verify the
-  headline numbers, including `candidate_width_sweep.csv` for manuscript
-  Figure 4;
-- `tests/`: lightweight package tests;
-- `genius_env.yml` and `LICENSE`.
+* `src/`: model and retrieval implementation;
+* `scripts/`: training, evaluation, profiling, plotting, and audit scripts;
+* `configs/`: current and historical experiment configurations;
+* `docs/results/`: lightweight evidence tables and audit inputs;
+* `tests/`, `genius_env.yml`, and `LICENSE`.
 
-The archive intentionally excludes model checkpoints, M-BEIR data, extracted
-features, candidate embeddings, semantic-ID caches, and large vector indexes.
-These assets are either subject to their original dataset/model licenses or
-are too large for a source artifact. The README documents the expected paths
-and command-line overrides so that an evaluator can provide them separately.
+The immutable code snapshot linked above predates some of the 16 September
+evidence summaries. It should not be described as a full reproduction package;
+large assets remain separately supplied under their respective licenses.
 
-## Reproducibility levels
+## Reproducibility
 
-The package supports two levels of verification.
-
-1. **No-data evidence audit.** This runs without a GPU, dataset, or checkpoint
-   and recomputes the headline values from the bundled lightweight evidence,
-   including the 16 matched task-width points in Figure 4:
-
-   ```bash
-   python scripts/structnar/audit_current_release.py
-   ```
-
-   The Figure 4 visualization can be recreated from its lightweight CSV with:
-
-   ```bash
-   python scripts/structnar/plot_candidate_width_sweep.py
-   ```
-
-2. **Full experiment reproduction.** This requires the official M-BEIR
-   release, the frozen CLIP/RQ50 assets, the P2L checkpoint, and the candidate
-   semantic-ID/Trie artifacts. Set `MBEIR_DATA_DIR`, `CKPT_DIR`, and any
-   experiment-specific paths before running the scripts under
-   `scripts/structnar/`.
-
-   The current reference configuration is
-   `configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml`. After
-   downloading the official M-BEIR release, link it into the artifact
-   checkout with:
-
-   ```bash
-   bash scripts/shared/setup_official_mbeir_symlink.sh /path/to/M-BEIR
-   ```
-
-   Historical release boundaries are explicit: v1.0.0 is the older PCAA
-   configuration (`lambda=20`), while v2.0.0 matches the Independent-Suffix
-   `lambda=0` default but predates the candidate-width Figure 4 evidence.
-   Neither tag should be presented as the final submission snapshot; use the
-   immutable commit permalink cited by the paper.
-
-## Environment
-
-The recorded environment is described by `genius_env.yml` (Python 3.10,
-PyTorch, FAISS, Transformers, CLIP, and the other required packages). Exact
-latencies depend on GPU, driver, CUDA, and storage state. Runtime comparisons
-must use the same checkpoint, candidate index, batch size, precision mode,
-and synchronization protocol.
-
-## Scope
-
-This public repository intentionally excludes the manuscript, supplementary
-material, compiled manuscript PDFs, and submission-specific LaTeX sources until
-the work has been formally submitted. The project homepage includes a framework
-preview. The source artifact contains no credentials, private
-filesystem paths, model weights, or copyrighted dataset files.
+No-data evidence checks can be run with the lightweight files under
+`docs/results/`. Full inference requires the official M-BEIR release, the frozen
+checkpoint, and the candidate semantic-ID/Trie assets. Runtime comparisons must
+use the same checkpoint, index, beam/output widths, precision, and synchronization
+protocol.
 
 ## License
 
-The released code is distributed under the MIT License in `LICENSE`. External
-datasets, pretrained models, and third-party packages remain under their own
-licenses.
+The released code is distributed under the MIT License. External datasets,
+pretrained models, and third-party packages remain under their own licenses.
