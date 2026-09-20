@@ -27,6 +27,16 @@ This public repository is code-only. The manuscript, supplementary paper,
 checkpoint, M-BEIR data, extracted features, candidate embeddings, semantic-ID
 caches, and large indexes are intentionally not included.
 
+## Supplementary Material
+
+The supplementary document referenced in the paper is available here:
+
+[P2L_Supplementary_Material.pdf](./P2L_Supplementary_Material.pdf)
+
+It contains additional model and training details, complete task-level
+results and controls, statistical procedures, and detailed timing and
+index-resource measurements.
+
 ## Included
 
 * `src/`: model and retrieval implementation;
