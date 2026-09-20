@@ -4,7 +4,7 @@
 
 [Project homepage](https://dhujinyun-netizen.github.io/p2l-vldb-artifact/) ·
 [Current code](configs/structnar/p2l_independent_s3_b50_k50_lambda0.yaml) ·
-[Pinned code snapshot](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/tree/c5bf1eda5c86176b5f1797701e63c1f7dcaa8f4f) ·
+[Artifact snapshot](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/tree/089d1a572aa2adfd1f34ded080c48840c62f7ff9) ·
 [Archived v1.0.0](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/v1.0.0)
 
 ## Current manuscript and evidence
@@ -23,9 +23,10 @@ expansion; P2L instead fixes a localization boundary and changes when partial-ke
 selection terminates. The homepage records this distinction without claiming a
 matched WIDE reimplementation.
 
-This public repository is code-only. The manuscript, supplementary paper,
-checkpoint, M-BEIR data, extracted features, candidate embeddings, semantic-ID
-caches, and large indexes are intentionally not included.
+This public repository is code-only apart from the supplementary document. The
+manuscript PDF/source, checkpoint, M-BEIR data, extracted features, candidate
+embeddings, semantic-ID caches, and large indexes are intentionally not
+included.
 
 ## Supplementary Material
 
@@ -45,9 +46,9 @@ index-resource measurements.
 * `docs/results/`: lightweight evidence tables and audit inputs;
 * `tests/`, `genius_env.yml`, and `LICENSE`.
 
-The immutable code snapshot linked above predates some of the 16 September
-evidence summaries. It should not be described as a full reproduction package;
-large assets remain separately supplied under their respective licenses.
+The immutable snapshot linked above contains the released code and supplementary
+PDF. The manuscript source, checkpoint, datasets, and large assets remain
+separately supplied under their respective licenses.
 
 ## Reproducibility
 
