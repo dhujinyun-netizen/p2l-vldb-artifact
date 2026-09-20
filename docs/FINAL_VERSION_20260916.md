@@ -12,5 +12,6 @@ The active project page is `index.html`. Its current evidence note is
 `evidence-20260916.md`; `evidence-20260913.md` and the archived v1.0.0 release
 are historical references. The page publishes only the framework preview,
 qualitative mechanism image, lightweight evidence summaries, and code links.
-The private manuscript PDFs, source ZIP, checkpoint, datasets, and large indexes
-are not published by the page.
+The supplementary PDF is available from the repository root as
+`P2L_Supplementary_Material.pdf`; the manuscript PDFs/source ZIP, checkpoint,
+datasets, and large indexes remain private.
