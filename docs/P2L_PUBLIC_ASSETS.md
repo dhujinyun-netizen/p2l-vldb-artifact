@@ -89,7 +89,10 @@ curl -L 'https://huggingface.co/TIGER-Lab/UniIR/resolve/main/checkpoint/CLIP_SF/
 Candidate embeddings, semantic-ID arrays, candidate IDs, and serialized Tries
 are derived assets and are not redistributed because they encode the M-BEIR
 candidate corpus. After downloading the official data, public weights, and
-third-party feature models, the complete all-32 regeneration/evaluation path is:
+third-party feature models, the command below regenerates the shared candidate
+caches and Tries. The all-32 wrapper uses the repository's legacy RRG20
+scoring label for cache organization; the semantic-ID/Trie assets themselves
+are independent of that downstream RRG weight.
 
 ```bash
 export MBEIR_DATA_DIR=/absolute/path/M-BEIR
@@ -105,8 +108,16 @@ CUDA_VISIBLE_DEVICES=0 \
 
 The generated files are written below
 `gen_code/STRUCTNAR/Large/Instruct/structnar_p2l_d3_rqc_cosine_w20_all32/`.
-The runner uses the released checkpoint, `s=3`, `B=K=50`, cosine suffix scoring,
-and the same deterministic 16-LOCAL/16-UNION protocol as the reported results.
-For a single task, use `scripts/structnar/eval_tcis.sh` after the corresponding
-candidate cache exists. The scripts record the generated code, ID, embedding,
-manifest, and Trie paths in their run logs.
+The wrapper uses the released checkpoint, `s=3`, `B=K=50`, cosine suffix scoring,
+and deterministic 16-LOCAL/16-UNION cache construction. It is not a claim that
+its legacy RRG20 result reproduces the current Independent-Suffix
+`lambda=0` headline. To run the current policy for one task after the shared
+cache exists, set `RRG_WEIGHT=0`, for example:
+
+```bash
+MBEIR_DATA_DIR="$MBEIR_DATA_DIR" DATASET=cirr_task7 RRG_WEIGHT=0 \
+  bash scripts/structnar/eval_tcis.sh
+```
+
+The scripts record the generated code, ID, embedding, manifest, and Trie paths
+in their run logs.
