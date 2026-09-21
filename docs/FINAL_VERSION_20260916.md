@@ -13,5 +13,9 @@ The active project page is `index.html`. Its current evidence note is
 are historical references. The page publishes only the framework preview,
 qualitative mechanism image, lightweight evidence summaries, and code links.
 The supplementary PDF is available from the repository root as
-`P2L_Supplementary_Material.pdf`; the manuscript PDFs/source ZIP, checkpoint,
-datasets, and large indexes remain private.
+`P2L_Supplementary_Material.pdf`. The manuscript PDFs/source ZIP remain
+private. The evaluated epoch-99 P2L checkpoint and matching RQ quantizer are
+publicly available from the
+[inference-only weights release](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/p2l-vldb-weights-v1.0.0);
+M-BEIR, third-party model files, and large derived indexes remain separately
+supplied.
