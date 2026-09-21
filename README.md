@@ -23,10 +23,10 @@ expansion; P2L instead fixes a localization boundary and changes when partial-ke
 selection terminates. The homepage records this distinction without claiming a
 matched WIDE reimplementation.
 
-This public repository is code-only apart from the supplementary document. The
-manuscript PDF/source, checkpoint, M-BEIR data, extracted features, candidate
-embeddings, semantic-ID caches, and large indexes are intentionally not
-included.
+This public repository is code-only apart from the supplementary document and
+the evaluated P2L weights release. The manuscript PDF/source, M-BEIR data,
+extracted features, candidate embeddings, semantic-ID caches, and large indexes
+are intentionally not included.
 
 ## Supplementary Material
 
@@ -38,6 +38,16 @@ It contains additional model and training details, complete task-level
 results and controls, statistical procedures, and detailed timing and
 index-resource measurements.
 
+## Public weights and asset reconstruction
+
+The evaluated epoch-99 P2L checkpoint and its matching trained RQ quantizer are
+available from the [P2L weights release](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/p2l-vldb-weights-v1.0.0).
+Their SHA-256 hashes and exact download commands are documented in
+[`docs/P2L_PUBLIC_ASSETS.md`](docs/P2L_PUBLIC_ASSETS.md). M-BEIR, OpenAI CLIP,
+UniIR CLIP-SF, and GENIUS third-party files are not redistributed; the same
+document links to their official sources and gives the commands for rebuilding
+semantic-ID and Trie assets from the public M-BEIR layout.
+
 ## Included
 
 * `src/`: model and retrieval implementation;
@@ -47,8 +57,9 @@ index-resource measurements.
 * `tests/`, `genius_env.yml`, and `LICENSE`.
 
 The immutable snapshot linked above contains the released code and supplementary
-PDF. The manuscript source, checkpoint, datasets, and large assets remain
-separately supplied under their respective licenses.
+PDF. The manuscript source, datasets, and large derived assets remain separately
+supplied under their respective licenses; the evaluated weights are distributed
+through the release above.
 
 ## Reproducibility
 
