@@ -7,23 +7,36 @@ no optimizer, scheduler, or scaler state.
 
 Release: <https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/p2l-vldb-weights-v1.0.0>
 
-| Asset | Download | SHA-256 |
+| Asset | Download | Integrity |
 |---|---|---|
-| Evaluated epoch-99 GPT-HDGR/P2L checkpoint | <https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_evaluated_epoch99_inference.pth> | `2fcf63e7eb211b849f1b582e3e86ca5e6be1090eff7912e5f317aeeb6eaaaf09` |
+| Evaluated epoch-99 GPT-HDGR/P2L checkpoint | Seven release shards plus [manifest](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_evaluated_epoch99_shards.manifest.json) | Manifest contains SHA-256 for every shard; assembled tensor state matches the released inference checkpoint |
 | Matching trained RQ quantizer | <https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_rq_quantizer_epoch99_inference.pth> | `b662556d050c4fb7557feaf85e4dabcb1e56d1b9cd83e30eb92a2d920d12b5b8` |
 
 The checkpoint corresponds to the reported epoch-99 source checkpoint
 (`2035a059...944fb`) and retains the complete trained generator state. The
 second file is the exact RQ state expected by the current evaluation config;
 the runtime initializes the quantizer before loading the generator checkpoint.
+The unsharded inference export used to create the release has SHA-256
+`2fcf63e7eb211b849f1b582e3e86ca5e6be1090eff7912e5f317aeeb6eaaaf09`; the
+manifest is authoritative for the uploaded shard files, and the assembler
+checks tensor-key coverage and exact tensor equality after reconstruction.
 
 ```bash
 mkdir -p checkpoint/code_tied \
   checkpoint/rq_clip_large/Large/Instruct/InBatch
-curl -L 'https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_evaluated_epoch99_inference.pth' \
-  -o checkpoint/code_tied/gpt_hdgr_latest.pth
 curl -L 'https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_rq_quantizer_epoch99_inference.pth' \
   -o checkpoint/rq_clip_large/Large/Instruct/InBatch/rq_clip_large_epoch_50.pth
+mkdir -p /tmp/p2l_shards
+curl -L 'https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_evaluated_epoch99_shards.manifest.json' \
+  -o /tmp/p2l_shards/p2l_evaluated_epoch99_shards.manifest.json
+for i in 000 001 002 003 004 005 006; do
+  curl -L "https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/download/p2l-vldb-weights-v1.0.0/p2l_evaluated_epoch99_shard-${i}-of-007.pth" \
+    -o "/tmp/p2l_shards/p2l_evaluated_epoch99_shard-${i}-of-007.pth"
+done
+python scripts/structnar/assemble_public_checkpoint.py \
+  --manifest /tmp/p2l_shards/p2l_evaluated_epoch99_shards.manifest.json \
+  --shard-dir /tmp/p2l_shards \
+  --output checkpoint/code_tied/gpt_hdgr_latest.pth
 sha256sum checkpoint/code_tied/gpt_hdgr_latest.pth \
   checkpoint/rq_clip_large/Large/Instruct/InBatch/rq_clip_large_epoch_50.pth
 ```
