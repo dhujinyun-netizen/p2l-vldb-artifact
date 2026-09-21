@@ -43,7 +43,7 @@ index-resource measurements.
 The evaluated epoch-99 P2L checkpoint and its matching trained RQ quantizer are
 available from the [P2L weights release](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/releases/tag/p2l-vldb-weights-v1.0.0).
 Their SHA-256 hashes and exact download commands are documented in
-[`docs/P2L_PUBLIC_ASSETS.md`](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/blob/c64dc53d10026714910f36109cbd05edcc410bf6/docs/P2L_PUBLIC_ASSETS.md). M-BEIR, OpenAI CLIP,
+[`docs/P2L_PUBLIC_ASSETS.md`](https://github.com/dhujinyun-netizen/p2l-vldb-artifact/blob/5eae245edded5790962c3df51bb3e05b73b89cdd/docs/P2L_PUBLIC_ASSETS.md). M-BEIR, OpenAI CLIP,
 UniIR CLIP-SF, and GENIUS third-party files are not redistributed; the same
 document links to their official sources and gives the commands for rebuilding
 semantic-ID and Trie assets from the public M-BEIR layout.
